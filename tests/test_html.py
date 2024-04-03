@@ -80,15 +80,15 @@ class HTMLTest(unittest.TestCase):
 
     def test_attributes(self):
         tag = input().type('text').id('my-input').value(0).disabled(False).readonly(None).required(True)
-        attributes = tag.get_attributes()
+        attributes = tag.get_attrs()
 
         self.assertEqual(4, len(attributes))
         self.assertNotIn('disabled', attributes)
         self.assertNotIn('readonly', attributes)
-        self.assertEqual('text', tag.get_attribute('type'))
-        self.assertEqual('my-input', tag.get_attribute('id'))
-        self.assertEqual('0', tag.get_attribute('value'))
-        self.assertEqual('required', tag.get_attribute('required'))
+        self.assertEqual('text', tag.get_attr('type'))
+        self.assertEqual('my-input', tag.get_attr('id'))
+        self.assertEqual('0', tag.get_attr('value'))
+        self.assertEqual('required', tag.get_attr('required'))
 
     def test_children(self):
         child1 = 'Hello'

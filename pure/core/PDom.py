@@ -8,7 +8,7 @@ class PDom(Dom):
         super().__init__()
         self._tag_name = tag.get_tag_name()
         self.__self_close = tag.get_self_close()
-        self._attrs = tag.get_attributes()
+        self._attrs = tag.get_attrs()
         self.children: List[Union['PDom', Raw, str]] = list(map(lambda child: PDom(child) if isinstance(child, Tag) else child, tag.get_children()))
 
     def __str__(self):

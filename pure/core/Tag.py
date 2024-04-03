@@ -23,24 +23,17 @@ class Tag(ABC):
                 raise Exception("'{}()' accepts one parameter. '{}()->{}() is invalid.'".format(key, self.__tag_name, key))
             if len(args) != 1:
                 raise Exception("'{}()' only accepts one parameter. '{}()->{}({}) is invalid.'".format(key, self.__tag_name, key, ','.join(args)))
-            self.__append_attr(key, args[0])
+            self.__set_attr(key, args[0])
             return self
 
         return missing_method
 
     def class_name(self, value: str):
-        self.__append_attr('class', value)
+        self.__set_attr('class', value)
         return self
 
     def htmlFor(self, value: str):
-        self.__append_attr('for', value)
-        return self
-
-    def set_props(self, props: Dict[str, Union[str, bool, None]]):
-        if not props:
-            return self
-        for key, value in props.items():
-            self.__append_attr(key, value)
+        self.__set_attr('for', value)
         return self
 
     def get_self_close(self):
@@ -55,16 +48,28 @@ class Tag(ABC):
     def get_tag_name(self):
         return self.__tag_name
 
-    def get_attributes(self):
+    def get_attrs(self):
         return self.__attrs
 
-    def get_attribute(self, key: str):
-        return self.__attrs[key]
+    def get_attr(self, key: str):
+        return self.__attrs.get(key)
 
-    def get_children(self):
-        return self.__children
+    def set_attrs(self, props: Dict[str, Union[str, bool, None]]):
+        if not props:
+            return self
+        for key, value in props.items():
+            self.__set_attr(key, value)
+        return self
 
-    def __append_attr(self, key: str, value: Union[str, bool, None]):
+    def set_attr_by_cb(self, key: str, callback: callable):
+        value = callback(self.get_attr(key))
+        if (value is None and key in self.__attrs):
+            del self.__attrs[key]
+        else:
+            self.__attrs[key] = value
+
+
+    def __set_attr(self, key: str, value: Union[str, bool, None]):
         if value is None:
             return
         if not key:
@@ -75,6 +80,9 @@ class Tag(ABC):
                 return
             value = key
         self.__attrs[key] = str(value)
+
+    def get_children(self):
+        return self.__children
 
     def __append_children(self, children: List[Union[str, Raw, 'Tag']]):
         if not children:

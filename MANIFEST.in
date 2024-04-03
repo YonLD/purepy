@@ -1,0 +1,30 @@
+# Include the README and license files
+include README.md
+include LICENSE
+
+# Include the package data
+recursive-include pure *.py
+recursive-include pure *.typed
+
+# Include examples
+recursive-include examples *.py
+recursive-include examples *.html
+recursive-include examples *.css
+recursive-include examples *.js
+
+# Include tests
+recursive-include tests *.py
+
+# Exclude development and build files
+exclude setup.py
+exclude .gitignore
+exclude .github
+recursive-exclude . __pycache__
+recursive-exclude . *.py[co]
+recursive-exclude . *.so
+recursive-exclude . .DS_Store
+recursive-exclude pureenv *
+recursive-exclude site *
+recursive-exclude build *
+recursive-exclude dist *
+recursive-exclude *.egg-info *
