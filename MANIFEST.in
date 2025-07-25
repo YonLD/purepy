@@ -6,14 +6,11 @@ include LICENSE
 recursive-include pure *.py
 recursive-include pure *.typed
 
-# Include examples
-recursive-include examples *.py
-recursive-include examples *.html
-recursive-include examples *.css
-recursive-include examples *.js
-
-# Include tests
-recursive-include tests *.py
+# Exclude development files
+recursive-exclude examples *
+recursive-exclude tests *
+recursive-exclude scripts *
+recursive-exclude site *
 
 # Exclude development and build files
 exclude setup.py
