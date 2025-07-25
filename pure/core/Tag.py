@@ -1,16 +1,20 @@
 from abc import ABC, abstractmethod
-from typing import Union, List, Dict
+from typing import Any, Union, List, Dict, Tuple
+
+from pure import clx, sty
 from .Raw import Raw
 
 class Tag(ABC):
-    def __init__(self, tag_name: str):
+    def __init__(self, tag_name: str, children: Tuple[Union[str, Raw, 'Tag']]):
         self.__tag_name = tag_name;
         self.__attrs: Dict[str, str] = {}
         self.__children: List[Union[str, Raw, 'Tag']] = []
         self.__self_close = False
 
+        self.__append_children(children)
+
     def __call__(self, *args: Union[str, Raw, 'Tag']):
-        self.__append_children(list(args))
+        self.__append_children(args)
         return self
 
     def __str__(self):
@@ -28,8 +32,18 @@ class Tag(ABC):
 
         return missing_method
 
-    def class_name(self, value: str):
-        self.__set_attr('class', value)
+    def class_name(self, *args: Union[Dict[str, Any], str, None, List[Union[str, None]]]):
+        if len(args) == 1 and type(args[0]) is str:
+            self.__set_attr('class', args[0])
+        else:
+            self.__set_attr('class', clx(*args))
+        return self
+
+    def style(self, value: Union[Dict[str, Any], None]):
+        if not type(value) is str:
+            value = sty(value)
+
+        self.__set_attr('style', value)
         return self
 
     def htmlFor(self, value: str):
@@ -84,12 +98,11 @@ class Tag(ABC):
     def get_children(self):
         return self.__children
 
-    def __append_children(self, children: List[Union[str, Raw, 'Tag']]):
+    def __append_children(self, children: Tuple[Union[str, Raw, 'Tag']]):
         if not children:
             return
-        for i in range(len(children)):
-            self.__append_child(children[i])
-
+        for child in children:
+            self.__append_child(child)
 
     def __append_child(self, child: Union[str, Raw, 'Tag']):
         if child is None:

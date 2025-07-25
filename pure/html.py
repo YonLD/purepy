@@ -1,442 +1,332 @@
 from .core.HTML import HTML
 
 def a(*args):
-    tag = HTML('a')
-    return tag(*args)
+    return HTML('a', args)
 
 def abbr(*args):
-    tag = HTML('abbr')
-    return tag(*args)
+    return HTML('abbr', args)
 
 def address(*args):
-    tag = HTML('address')
-    return tag(*args)
+    return HTML('address', args)
 
 def area(*args):
-    tag = HTML('area')
-    return tag(*args)
+    return HTML('area', args)
 
 def article(*args):
-    tag = HTML('article')
-    return tag(*args)
+    return HTML('article', args)
 
 def aside(*args):
-    tag = HTML('aside')
-    return tag(*args)
+    return HTML('aside', args)
 
 def audio(*args):
-    tag = HTML('audio')
-    return tag(*args)
+    return HTML('audio', args)
 
 def b(*args):
-    tag = HTML('b')
-    return tag(*args)
+    return HTML('b', args)
 
 def base(*args):
-    tag = HTML('base')
-    return tag(*args)
+    return HTML('base', args)
 
 def bdi(*args):
-    tag = HTML('bdi')
-    return tag(*args)
+    return HTML('bdi', args)
 
 def bdo(*args):
-    tag = HTML('bdo')
-    return tag(*args)
+    return HTML('bdo', args)
 
 def blockquote(*args):
-    tag = HTML('blockquote')
-    return tag(*args)
+    return HTML('blockquote', args)
 
 def body(*args):
-    tag = HTML('body')
-    return tag(*args)
+    return HTML('body', args)
 
 def br(*args):
-    tag = HTML('br')
-    return tag(*args)
+    return HTML('br', args)
 
 def button(*args):
-    tag = HTML('button')
-    return tag(*args)
+    return HTML('button', args)
 
 def canvas(*args):
-    tag = HTML('canvas')
-    return tag(*args)
+    return HTML('canvas', args)
 
 def caption(*args):
-    tag = HTML('caption')
-    return tag(*args)
+    return HTML('caption', args)
 
 def cite(*args):
-    tag = HTML('cite')
-    return tag(*args)
+    return HTML('cite', args)
 
 def code(*args):
-    tag = HTML('code')
-    return tag(*args)
+    return HTML('code', args)
 
 def col(*args):
-    tag = HTML('col')
-    return tag(*args)
+    return HTML('col', args)
 
 def colgroup(*args):
-    tag = HTML('colgroup')
-    return tag(*args)
+    return HTML('colgroup', args)
 
 def data(*args):
-    tag = HTML('data')
-    return tag(*args)
+    return HTML('data', args)
 
 def datalist(*args):
-    tag = HTML('datalist')
-    return tag(*args)
+    return HTML('datalist', args)
 
 def dd(*args):
-    tag = HTML('dd')
-    return tag(*args)
+    return HTML('dd', args)
 
 def Del(*args):
-    tag = HTML('del')
-    return tag(*args)
+    return HTML('del', args)
 
 def details(*args):
-    tag = HTML('details')
-    return tag(*args)
+    return HTML('details', args)
 
 def dfn(*args):
-    tag = HTML('dfn')
-    return tag(*args)
+    return HTML('dfn', args)
 
 def dialog(*args):
-    tag = HTML('dialog')
-    return tag(*args)
+    return HTML('dialog', args)
 
 def div(*args):
-    tag = HTML('div')
-    return tag(*args)
+    return HTML('div', args)
 
 def dl(*args):
-    tag = HTML('dl')
-    return tag(*args)
+    return HTML('dl', args)
 
 def dt(*args):
-    tag = HTML('dt')
-    return tag(*args)
+    return HTML('dt', args)
 
 def em(*args):
-    tag = HTML('em')
-    return tag(*args)
+    return HTML('em', args)
 
 def embed(*args):
-    tag = HTML('embed')
-    return tag(*args)
+    return HTML('embed', args)
 
 def fieldset(*args):
-    tag = HTML('fieldset')
-    return tag(*args)
+    return HTML('fieldset', args)
 
 def figcaption(*args):
-    tag = HTML('figcaption')
-    return tag(*args)
+    return HTML('figcaption', args)
 
 def figure(*args):
-    tag = HTML('figure')
-    return tag(*args)
+    return HTML('figure', args)
 
 def footer(*args):
-    tag = HTML('footer')
-    return tag(*args)
+    return HTML('footer', args)
 
 def form(*args):
-    tag = HTML('form')
-    return tag(*args)
+    return HTML('form', args)
 
 def h1(*args):
-    tag = HTML('h1')
-    return tag(*args)
+    return HTML('h1', args)
 
 def h2(*args):
-    tag = HTML('h2')
-    return tag(*args)
+    return HTML('h2', args)
 
 def h3(*args):
-    tag = HTML('h3')
-    return tag(*args)
+    return HTML('h3', args)
 
 def h4(*args):
-    tag = HTML('h4')
-    return tag(*args)
+    return HTML('h4', args)
 
 def h5(*args):
-    tag = HTML('h5')
-    return tag(*args)
+    return HTML('h5', args)
 
 def h6(*args):
-    tag = HTML('h6')
-    return tag(*args)
+    return HTML('h6', args)
 
 def head(*args):
-    tag = HTML('head')
-    return tag(*args)
+    return HTML('head', args)
 
 def header(*args):
-    tag = HTML('header')
-    return tag(*args)
+    return HTML('header', args)
 
 def hgroup(*args):
-    tag = HTML('hgroup')
-    return tag(*args)
+    return HTML('hgroup', args)
 
 def hr(*args):
-    tag = HTML('hr')
-    return tag(*args)
+    return HTML('hr', args)
 
 def html(*args):
-    tag = HTML('html')
-    return tag(*args)
+    return HTML('html', args)
 
 def i(*args):
-    tag = HTML('i')
-    return tag(*args)
+    return HTML('i', args)
 
 def iframe(*args):
-    tag = HTML('iframe')
-    return tag(*args)
+    return HTML('iframe', args)
 
 def img(*args):
-    tag = HTML('img')
-    return tag(*args)
+    return HTML('img', args)
 
 def input(*args):
-    tag = HTML('input')
-    return tag(*args)
+    return HTML('input', args)
 
 def ins(*args):
-    tag = HTML('ins')
-    return tag(*args)
+    return HTML('ins', args)
 
 def kbd(*args):
-    tag = HTML('kbd')
-    return tag(*args)
+    return HTML('kbd', args)
 
 def label(*args):
-    tag = HTML('label')
-    return tag(*args)
+    return HTML('label', args)
 
 def legend(*args):
-    tag = HTML('legend')
-    return tag(*args)
+    return HTML('legend', args)
 
 def li(*args):
-    tag = HTML('li')
-    return tag(*args)
+    return HTML('li', args)
 
 def link(*args):
-    tag = HTML('link')
-    return tag(*args)
+    return HTML('link', args)
 
 def main(*args):
-    tag = HTML('main')
-    return tag(*args)
+    return HTML('main', args)
 
 def map(*args):
-    tag = HTML('map')
-    return tag(*args)
+    return HTML('map', args)
 
 def mark(*args):
-    tag = HTML('mark')
-    return tag(*args)
+    return HTML('mark', args)
 
 def menu(*args):
-    tag = HTML('menu')
-    return tag(*args)
+    return HTML('menu', args)
 
 def meta(*args):
-    tag = HTML('meta')
-    return tag(*args)
+    return HTML('meta', args)
 
 def meter(*args):
-    tag = HTML('meter')
-    return tag(*args)
+    return HTML('meter', args)
 
 def nav(*args):
-    tag = HTML('nav')
-    return tag(*args)
+    return HTML('nav', args)
 
 def noscript(*args):
-    tag = HTML('noscript')
-    return tag(*args)
+    return HTML('noscript', args)
 
 def object(*args):
-    tag = HTML('object')
-    return tag(*args)
+    return HTML('object', args)
 
 def ol(*args):
-    tag = HTML('ol')
-    return tag(*args)
+    return HTML('ol', args)
 
 def optgroup(*args):
-    tag = HTML('optgroup')
-    return tag(*args)
+    return HTML('optgroup', args)
 
 def option(*args):
-    tag = HTML('option')
-    return tag(*args)
+    return HTML('option', args)
 
 def output(*args):
-    tag = HTML('output')
-    return tag(*args)
+    return HTML('output', args)
 
 def p(*args):
-    tag = HTML('p')
-    return tag(*args)
+    return HTML('p', args)
 
 def picture(*args):
-    tag = HTML('picture')
-    return tag(*args)
+    return HTML('picture', args)
 
 def pre(*args):
-    tag = HTML('pre')
-    return tag(*args)
+    return HTML('pre', args)
 
 def progress(*args):
-    tag = HTML('progress')
-    return tag(*args)
+    return HTML('progress', args)
 
 def q(*args):
-    tag = HTML('q')
-    return tag(*args)
+    return HTML('q', args)
 
 def rp(*args):
-    tag = HTML('rp')
-    return tag(*args)
+    return HTML('rp', args)
 
 def rt(*args):
-    tag = HTML('rt')
-    return tag(*args)
+    return HTML('rt', args)
 
 def ruby(*args):
-    tag = HTML('ruby')
-    return tag(*args)
+    return HTML('ruby', args)
 
 def s(*args):
-    tag = HTML('s')
-    return tag(*args)
+    return HTML('s', args)
 
 def samp(*args):
-    tag = HTML('samp')
-    return tag(*args)
+    return HTML('samp', args)
 
 def script(*args):
-    tag = HTML('script')
-    return tag(*args)
+    return HTML('script', args)
 
 def section(*args):
-    tag = HTML('section')
-    return tag(*args)
+    return HTML('section', args)
 
 def select(*args):
-    tag = HTML('select')
-    return tag(*args)
+    return HTML('select', args)
 
 def slot(*args):
-    tag = HTML('slot')
-    return tag(*args)
+    return HTML('slot', args)
 
 def small(*args):
-    tag = HTML('small')
-    return tag(*args)
+    return HTML('small', args)
 
 def source(*args):
-    tag = HTML('source')
-    return tag(*args)
+    return HTML('source', args)
 
 def span(*args):
-    tag = HTML('span')
-    return tag(*args)
+    return HTML('span', args)
 
 def strong(*args):
-    tag = HTML('strong')
-    return tag(*args)
+    return HTML('strong', args)
 
 def style(*args):
-    tag = HTML('style')
-    return tag(*args)
+    return HTML('style', args)
 
 def sub(*args):
-    tag = HTML('sub')
-    return tag(*args)
+    return HTML('sub', args)
 
 def summary(*args):
-    tag = HTML('summary')
-    return tag(*args)
+    return HTML('summary', args)
 
 def sup(*args):
-    tag = HTML('sup')
-    return tag(*args)
+    return HTML('sup', args)
 
 def table(*args):
-    tag = HTML('table')
-    return tag(*args)
+    return HTML('table', args)
 
 def tbody(*args):
-    tag = HTML('tbody')
-    return tag(*args)
+    return HTML('tbody', args)
 
 def td(*args):
-    tag = HTML('td')
-    return tag(*args)
+    return HTML('td', args)
 
 def template(*args):
-    tag = HTML('template')
-    return tag(*args)
+    return HTML('template', args)
 
 def textarea(*args):
-    tag = HTML('textarea')
-    return tag(*args)
+    return HTML('textarea', args)
 
 def tfoot(*args):
-    tag = HTML('tfoot')
-    return tag(*args)
+    return HTML('tfoot', args)
 
 def th(*args):
-    tag = HTML('th')
-    return tag(*args)
+    return HTML('th', args)
 
 def thead(*args):
-    tag = HTML('thead')
-    return tag(*args)
+    return HTML('thead', args)
 
 def time(*args):
-    tag = HTML('time')
-    return tag(*args)
+    return HTML('time', args)
 
 def title(*args):
-    tag = HTML('title')
-    return tag(*args)
+    return HTML('title', args)
 
 def tr(*args):
-    tag = HTML('tr')
-    return tag(*args)
+    return HTML('tr', args)
 
 def track(*args):
-    tag = HTML('track')
-    return tag(*args)
+    return HTML('track', args)
 
 def u(*args):
-    tag = HTML('u')
-    return tag(*args)
+    return HTML('u', args)
 
 def ul(*args):
-    tag = HTML('ul')
-    return tag(*args)
+    return HTML('ul', args)
 
 def video(*args):
-    tag = HTML('video')
-    return tag(*args)
+    return HTML('video', args)
 
 def wbr(*args):
-    tag = HTML('wbr')
-    return tag(*args)
+    return HTML('wbr', args)
 

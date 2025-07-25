@@ -22,36 +22,28 @@ data = [
 ]
 
 def address(*args):
-    tag = XML('address')
-    return tag(*args)
+    return XML('address', args)
 
 def street(*args):
-    tag = XML('street')
-    return tag(*args)
+    return XML('street', args)
 
 def city(*args):
-    tag = XML('city')
-    return tag(*args)
+    return XML('city', args)
 
 def state(*args):
-    tag = XML('state')
-    return tag(*args)
+    return XML('state', args)
 
 def zip(*args):
-    tag = XML('zip')
-    return tag(*args)
+    return XML('zip', args)
 
 def customers(*args):
-    tag = XML('customers')
-    return tag(*args)
+    return XML('customers', args)
 
 def customer(*args):
-    tag = XML('customer')
-    return tag(*args)
+    return XML('customer', args)
 
 def name(*args):
-    tag = XML('name')
-    return tag(*args)
+    return XML('name', args)
 
 def Address(props: Dict[str, str]):
     street_val = props.get('street')

@@ -1,254 +1,190 @@
 from .core.SVG import SVG
 
 def a(*args):
-    tag = SVG('a')
-    return tag(*args)
+    return SVG('a', args)
 
 def animate(*args):
-    tag = SVG('animate')
-    return tag(*args)
+    return SVG('animate', args)
 
 def animateMotion(*args):
-    tag = SVG('animateMotion')
-    return tag(*args)
+    return SVG('animateMotion', args)
 
 def animateTransform(*args):
-    tag = SVG('animateTransform')
-    return tag(*args)
+    return SVG('animateTransform', args)
 
 def circle(*args):
-    tag = SVG('circle')
-    return tag(*args)
+    return SVG('circle', args)
 
 def clipPath(*args):
-    tag = SVG('clipPath')
-    return tag(*args)
+    return SVG('clipPath', args)
 
 def defs(*args):
-    tag = SVG('defs')
-    return tag(*args)
+    return SVG('defs', args)
 
 def desc(*args):
-    tag = SVG('desc')
-    return tag(*args)
+    return SVG('desc', args)
 
 def ellipse(*args):
-    tag = SVG('ellipse')
-    return tag(*args)
+    return SVG('ellipse', args)
 
 def feBlend(*args):
-    tag = SVG('feBlend')
-    return tag(*args)
+    return SVG('feBlend', args)
 
 def feColorMatrix(*args):
-    tag = SVG('feColorMatrix')
-    return tag(*args)
+    return SVG('feColorMatrix', args)
 
 def feComponentTransfer(*args):
-    tag = SVG('feComponentTransfer')
-    return tag(*args)
+    return SVG('feComponentTransfer', args)
 
 def feComposite(*args):
-    tag = SVG('feComposite')
-    return tag(*args)
+    return SVG('feComposite', args)
 
 def feConvolveMatrix(*args):
-    tag = SVG('feConvolveMatrix')
-    return tag(*args)
+    return SVG('feConvolveMatrix', args)
 
 def feDiffuseLighting(*args):
-    tag = SVG('feDiffuseLighting')
-    return tag(*args)
+    return SVG('feDiffuseLighting', args)
 
 def feDisplacementMap(*args):
-    tag = SVG('feDisplacementMap')
-    return tag(*args)
+    return SVG('feDisplacementMap', args)
 
 def feDistantLight(*args):
-    tag = SVG('feDistantLight')
-    return tag(*args)
+    return SVG('feDistantLight', args)
 
 def feDropShadow(*args):
-    tag = SVG('feDropShadow')
-    return tag(*args)
+    return SVG('feDropShadow', args)
 
 def feFlood(*args):
-    tag = SVG('feFlood')
-    return tag(*args)
+    return SVG('feFlood', args)
 
 def feFuncA(*args):
-    tag = SVG('feFuncA')
-    return tag(*args)
+    return SVG('feFuncA', args)
 
 def feFuncB(*args):
-    tag = SVG('feFuncB')
-    return tag(*args)
+    return SVG('feFuncB', args)
 
 def feFuncG(*args):
-    tag = SVG('feFuncG')
-    return tag(*args)
+    return SVG('feFuncG', args)
 
 def feFuncR(*args):
-    tag = SVG('feFuncR')
-    return tag(*args)
+    return SVG('feFuncR', args)
 
 def feGaussianBlur(*args):
-    tag = SVG('feGaussianBlur')
-    return tag(*args)
+    return SVG('feGaussianBlur', args)
 
 def feImage(*args):
-    tag = SVG('feImage')
-    return tag(*args)
+    return SVG('feImage', args)
 
 def feMerge(*args):
-    tag = SVG('feMerge')
-    return tag(*args)
+    return SVG('feMerge', args)
 
 def feMergeNode(*args):
-    tag = SVG('feMergeNode')
-    return tag(*args)
+    return SVG('feMergeNode', args)
 
 def feMorphology(*args):
-    tag = SVG('feMorphology')
-    return tag(*args)
+    return SVG('feMorphology', args)
 
 def feOffset(*args):
-    tag = SVG('feOffset')
-    return tag(*args)
+    return SVG('feOffset', args)
 
 def fePointLight(*args):
-    tag = SVG('fePointLight')
-    return tag(*args)
+    return SVG('fePointLight', args)
 
 def feSpecularLighting(*args):
-    tag = SVG('feSpecularLighting')
-    return tag(*args)
+    return SVG('feSpecularLighting', args)
 
 def feSpotLight(*args):
-    tag = SVG('feSpotLight')
-    return tag(*args)
+    return SVG('feSpotLight', args)
 
 def feTile(*args):
-    tag = SVG('feTile')
-    return tag(*args)
+    return SVG('feTile', args)
 
 def feTurbulence(*args):
-    tag = SVG('feTurbulence')
-    return tag(*args)
+    return SVG('feTurbulence', args)
 
 def filter(*args):
-    tag = SVG('filter')
-    return tag(*args)
+    return SVG('filter', args)
 
 def foreignObject(*args):
-    tag = SVG('foreignObject')
-    return tag(*args)
+    return SVG('foreignObject', args)
 
 def g(*args):
-    tag = SVG('g')
-    return tag(*args)
+    return SVG('g', args)
 
 def image(*args):
-    tag = SVG('image')
-    return tag(*args)
+    return SVG('image', args)
 
 def line(*args):
-    tag = SVG('line')
-    return tag(*args)
+    return SVG('line', args)
 
 def linearGradient(*args):
-    tag = SVG('linearGradient')
-    return tag(*args)
+    return SVG('linearGradient', args)
 
 def marker(*args):
-    tag = SVG('marker')
-    return tag(*args)
+    return SVG('marker', args)
 
 def mask(*args):
-    tag = SVG('mask')
-    return tag(*args)
+    return SVG('mask', args)
 
 def metadata(*args):
-    tag = SVG('metadata')
-    return tag(*args)
+    return SVG('metadata', args)
 
 def mpath(*args):
-    tag = SVG('mpath')
-    return tag(*args)
+    return SVG('mpath', args)
 
 def path(*args):
-    tag = SVG('path')
-    return tag(*args)
+    return SVG('path', args)
 
 def pattern(*args):
-    tag = SVG('pattern')
-    return tag(*args)
+    return SVG('pattern', args)
 
 def polygon(*args):
-    tag = SVG('polygon')
-    return tag(*args)
+    return SVG('polygon', args)
 
 def polyline(*args):
-    tag = SVG('polyline')
-    return tag(*args)
+    return SVG('polyline', args)
 
 def radialGradient(*args):
-    tag = SVG('radialGradient')
-    return tag(*args)
+    return SVG('radialGradient', args)
 
 def rect(*args):
-    tag = SVG('rect')
-    return tag(*args)
+    return SVG('rect', args)
 
 def script(*args):
-    tag = SVG('script')
-    return tag(*args)
+    return SVG('script', args)
 
 def set(*args):
-    tag = SVG('set')
-    return tag(*args)
+    return SVG('set', args)
 
 def stop(*args):
-    tag = SVG('stop')
-    return tag(*args)
+    return SVG('stop', args)
 
 def style(*args):
-    tag = SVG('style')
-    return tag(*args)
+    return SVG('style', args)
 
 def svg(*args):
-    tag = SVG('svg')
-    return tag(*args)
+    return SVG('svg', args)
 
 def switch(*args):
-    tag = SVG('switch')
-    return tag(*args)
+    return SVG('switch', args)
 
 def symbol(*args):
-    tag = SVG('symbol')
-    return tag(*args)
+    return SVG('symbol', args)
 
 def text(*args):
-    tag = SVG('text')
-    return tag(*args)
+    return SVG('text', args)
 
 def textPath(*args):
-    tag = SVG('textPath')
-    return tag(*args)
+    return SVG('textPath', args)
 
 def title(*args):
-    tag = SVG('title')
-    return tag(*args)
+    return SVG('title', args)
 
 def tspan(*args):
-    tag = SVG('tspan')
-    return tag(*args)
+    return SVG('tspan', args)
 
 def use(*args):
-    tag = SVG('use')
-    return tag(*args)
+    return SVG('use', args)
 
 def view(*args):
-    tag = SVG('view')
-    return tag(*args)
-
+    return SVG('view', args)

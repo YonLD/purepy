@@ -1,4 +1,6 @@
-from .Tag import Tag
+from typing import Union, Tuple
+from pure.core.Raw import Raw
+from pure.core import Tag
 
 SELF_CLOSE_HTML_TAGS = [
     'area',
@@ -17,8 +19,8 @@ SELF_CLOSE_HTML_TAGS = [
 ]
 
 class HTML(Tag):
-    def __init__(self, tag_name: str):
-        super().__init__(tag_name)
+    def __init__(self, tag_name: str, children: Tuple[Union[str, Raw, Tag]] = ()):
+        super().__init__(tag_name, children)
         if tag_name.lower() in SELF_CLOSE_HTML_TAGS:
             self.set_self_close(True)
 

@@ -12,7 +12,7 @@ Example:
         h1('Welcome to Purepy'),
         p('A Python templating engine'),
         a('Learn more').href('https://github.com/YonLD/purepy')
-    ).class_name('container').toPrint()
+    ).class_name('container').to_print()
 """
 
 __version__ = "1.0.0"

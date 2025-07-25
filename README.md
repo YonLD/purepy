@@ -29,7 +29,7 @@ from pure.html import div, a
 div(
     'Hello ',
     a('Python').href('https://www.python.org')
-).class_name('container').style('background: #fff;').data_key('primary').toPrint()
+).class_name('container').style('background: #fff;').data_key('primary').to_print()
 ```
 
 The above code will output:
@@ -62,7 +62,7 @@ Card({
     'title': 'Welcome to Purepy',
     'content': 'A Python templating engine inspired by React',
     'link': 'https://github.com/YonLD/purepy'
-}).toPrint()
+}).to_print()
 ```
 
 ## Features
