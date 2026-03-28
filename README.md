@@ -16,7 +16,7 @@ However, with Purepy:
 ## Install
 
 ```bash
-pip install purepy
+pip install yonld-purepy
 ```
 
 ## Basic usage

@@ -14,7 +14,7 @@ This guide covers different ways to install and set up Purepy.
 The easiest way to install Purepy is using pip:
 
 ```bash
-pip install purepy
+pip install yonld-purepy
 ```
 
 ### 2. Install from Source
@@ -42,7 +42,7 @@ purepy-env\Scripts\activate
 source purepy-env/bin/activate
 
 # Install Purepy
-pip install purepy
+pip install yonld-purepy
 ```
 
 ## Verify Installation
