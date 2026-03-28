@@ -38,6 +38,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pytest pytest-cov
+          pip install -e .
 
       - name: Run pytest
         run: pytest tests/ -v --cov=pure --cov-report=term-missing
