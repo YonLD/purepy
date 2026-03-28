@@ -5,7 +5,7 @@ hero:
   text: 一个受 ReactJS 启发的 Python 模板引擎
   tagline: 享受纯 Python 编程的乐趣
   image:
-    src: /pure.svg
+    src: ./pure.svg
     alt: Purepy Logo
   actions:
     - theme: brand

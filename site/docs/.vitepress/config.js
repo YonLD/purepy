@@ -1,6 +1,7 @@
 export default {
   title: 'Purepy',
   description: 'A Python Template Engine inspired by ReactJS',
+  base: '/purepy/',
   defaultLocale: 'zh-CN',
   locales: {
     root: {

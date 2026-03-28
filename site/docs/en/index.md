@@ -5,7 +5,7 @@ hero:
   text: A Python Template Engine inspired by ReactJS
   tagline: Enjoy pure Python programming
   image:
-    src: /pure.svg
+    src: ./pure.svg
     alt: Purepy Logo
   actions:
     - theme: brand
