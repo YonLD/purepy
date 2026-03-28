@@ -65,17 +65,17 @@ class TestPackageImports(unittest.TestCase):
     def test_import_core_classes(self):
         """Test importing core classes."""
         from pure.core import HTML, SVG, XML, Tag, Raw
-        
+
         # Test HTML class
         html_element = HTML('div')
         self.assertIsInstance(html_element, Tag)
-        
+
         # Test SVG class
-        svg_element = SVG('svg')
+        svg_element = SVG('svg', ())
         self.assertIsInstance(svg_element, Tag)
-        
+
         # Test XML class
-        xml_element = XML('root')
+        xml_element = XML('root', ())
         self.assertIsInstance(xml_element, Tag)
     
     def test_import_utility_functions(self):
