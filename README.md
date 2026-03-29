@@ -13,6 +13,10 @@ However, with Purepy:
 + Encapsulate components to eliminate repetitive HTML code.
 + The syntax closely resembles HTML.
 
+## Documentation
+
+Full documentation is available at https://yonld.github.io/purepy/
+
 ## Install
 
 ```bash
