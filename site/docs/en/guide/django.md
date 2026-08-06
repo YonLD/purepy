@@ -13,7 +13,7 @@ Purepy integrates seamlessly with the Django framework as an alternative to trad
 ### 1. Install Dependencies
 
 ```bash
-pip install django purepy
+pip install django yonld-purepy
 ```
 
 ### 2. Create Django Project

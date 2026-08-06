@@ -13,7 +13,7 @@ Purepy integrates seamlessly with the Flask framework, providing component-based
 ### 1. Install Dependencies
 
 ```bash
-pip install flask purepy
+pip install flask yonld-purepy
 ```
 
 ### 2. Basic Integration

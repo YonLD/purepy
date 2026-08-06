@@ -77,7 +77,7 @@ python -m twine upload --repository testpypi dist/*
 Test installation:
 
 ```bash
-pip install --index-url https://test.pypi.org/simple/ purepy
+pip install --index-url https://test.pypi.org/simple/ yonld-purepy
 ```
 
 ### 5. Upload to PyPI
@@ -108,8 +108,8 @@ python scripts/release.py
 
 After publishing, verify the package:
 
-1. Check the package page: https://pypi.org/project/purepy/
-2. Install and test: `pip install purepy`
+1. Check the package page: https://pypi.org/project/yonld-purepy/
+2. Install and test: `pip install yonld-purepy`
 3. Test basic functionality:
 
 ```python

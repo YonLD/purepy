@@ -33,7 +33,9 @@ export default {
         {
           text: '介绍',
           items: [
+            { text: '简介', link: '/guide/introduction' },
             { text: '什么是 Purepy?', link: '/guide/' },
+            { text: '安装', link: '/guide/installation' },
             { text: '快速开始', link: '/guide/getting-started' }
           ]
         },
@@ -60,7 +62,8 @@ export default {
         {
           text: 'API 参考',
           items: [
-            { text: '核心类', link: '/api/' },
+            { text: 'API 参考', link: '/api/' },
+            { text: '核心类', link: '/api/core' },
             { text: 'HTML 标签', link: '/api/html-tags' },
             { text: 'SVG 标签', link: '/api/svg-tags' }
           ]
@@ -70,7 +73,9 @@ export default {
         {
           text: 'Introduction',
           items: [
+            { text: 'Introduction', link: '/en/guide/introduction' },
             { text: 'What is Purepy?', link: '/en/guide/' },
+            { text: 'Installation', link: '/en/guide/installation' },
             { text: 'Getting Started', link: '/en/guide/getting-started' }
           ]
         },
@@ -97,7 +102,8 @@ export default {
         {
           text: 'API Reference',
           items: [
-            { text: 'Core Classes', link: '/en/api/' },
+            { text: 'API Reference', link: '/en/api/' },
+            { text: 'Core Classes', link: '/en/api/core' },
             { text: 'HTML Tags', link: '/en/api/html-tags' },
             { text: 'SVG Tags', link: '/en/api/svg-tags' }
           ]

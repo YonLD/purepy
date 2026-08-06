@@ -121,7 +121,7 @@ Purepy 完全支持 Python 的类型提示系统，提供更好的开发体验�
 ### 安装
 
 ```bash
-pip install purepy
+pip install yonld-purepy
 ```
 
 ### 基本使用

@@ -121,7 +121,7 @@ The core library is small and has no unnecessary dependencies, making it easy to
 ### Installation
 
 ```bash
-pip install purepy
+pip install yonld-purepy
 ```
 
 ### Basic Usage

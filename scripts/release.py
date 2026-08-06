@@ -39,7 +39,7 @@ def upload_to_pypi(test=False):
         print("Uploading to Test PyPI...")
         run_command("python -m twine upload --repository testpypi dist/*")
         print("\nPackage uploaded to Test PyPI!")
-        print("Install with: pip install --index-url https://test.pypi.org/simple/ purepy")
+        print("Install with: pip install --index-url https://test.pypi.org/simple/ yonld-purepy")
     else:
         print("Uploading to PyPI...")
         confirmation = input("Are you sure you want to upload to PyPI? (yes/no): ")
@@ -49,7 +49,7 @@ def upload_to_pypi(test=False):
         
         run_command("python -m twine upload dist/*")
         print("\nPackage uploaded to PyPI!")
-        print("Install with: pip install purepy")
+        print("Install with: pip install yonld-purepy")
 
 def main():
     """Main release process."""

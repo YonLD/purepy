@@ -13,7 +13,7 @@ Purepy 可以与 Django 框架无缝集成，作为传统 Django 模板的替代
 ### 1. 安装依赖
 
 ```bash
-pip install django purepy
+pip install django yonld-purepy
 ```
 
 ### 2. 创建 Django 项目

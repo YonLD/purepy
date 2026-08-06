@@ -13,7 +13,7 @@ Purepy 可以很好地与 Flask 框架集成，提供组件化的模板渲染能
 ### 1. 安装依赖
 
 ```bash
-pip install flask purepy
+pip install flask yonld-purepy
 ```
 
 ### 2. 基本集成

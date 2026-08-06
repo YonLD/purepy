@@ -179,7 +179,7 @@ my-purepy-project/
 Example `requirements.txt`:
 
 ```txt
-purepy>=1.0.0
+yonld-purepy>=1.0.0
 ```
 
 Example `main.py`:
@@ -221,20 +221,20 @@ from pure.html import div
 
 If you get "Module not found" errors:
 
-1. Ensure Purepy is installed: `pip list | grep purepy`
+1. Ensure Purepy is installed: `pip list | grep yonld-purepy`
 2. Check your Python path: `python -c "import sys; print(sys.path)"`
 3. Verify virtual environment is activated
 
 ### Permission Errors
 
-On some systems, you might need to use `pip install --user purepy` or run with elevated privileges.
+On some systems, you might need to use `pip install --user yonld-purepy` or run with elevated privileges.
 
 ## Updating Purepy
 
 To update to the latest version:
 
 ```bash
-pip install --upgrade purepy
+pip install --upgrade yonld-purepy
 ```
 
 To check your current version:
@@ -249,7 +249,7 @@ print(pure.__version__)  # If version info is available
 To remove Purepy:
 
 ```bash
-pip uninstall purepy
+pip uninstall yonld-purepy
 ```
 
 ## Next Steps

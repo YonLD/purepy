@@ -14,7 +14,7 @@
 在你的项目目录中运行：
 
 ```bash
-pip install purepy
+pip install yonld-purepy
 ```
 
 ### 验证安装

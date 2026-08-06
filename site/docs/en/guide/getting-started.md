@@ -7,7 +7,7 @@ This guide will help you get started with Purepy quickly.
 Install Purepy using pip:
 
 ```bash
-pip install purepy
+pip install yonld-purepy
 ```
 
 ## Your First Purepy Application

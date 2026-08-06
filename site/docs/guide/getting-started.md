@@ -7,7 +7,7 @@
 首先安装 Purepy：
 
 ```bash
-pip install purepy
+pip install yonld-purepy
 ```
 
 ## 创建第一个应用

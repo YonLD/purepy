@@ -1,0 +1,47 @@
+﻿# Purepy
+
+> Purepy 是一个受 ReactJS 函数式组件启发的 Python 模板引擎，用纯 Python 以声明式方式构建 HTML、SVG 和 XML。
+
+## 中文指南 (Guide)
+
+- [什么是 Purepy?](https://yonld.github.io/purepy/guide/index.html.md): Purepy 是一个 Python 模板引擎，受 ReactJS 函数式组件的启发。它使用 Python 对象来表示 HTML 元素，提供了一种声明式的方式来构建用户界面，使代码更加简洁、可维护和可重用。
+- [基本用法](https://yonld.github.io/purepy/guide/basic-usage.html.md): 本指南介绍 Purepy 的基本用法和语法。
+- [组件](https://yonld.github.io/purepy/guide/components.html.md): 组件是 Purepy 的核心概念之一，它允许你将 UI 拆分成独立、可重用的部分。本指南将介绍如何创建和使用组件。
+- [基本概念](https://yonld.github.io/purepy/guide/concepts.html.md): 本章将介绍 Purepy 的核心概念，帮助你更好地理解和使用这个模板引擎。
+- [Django 集成](https://yonld.github.io/purepy/guide/django.html.md): Purepy 可以与 Django 框架无缝集成，作为传统 Django 模板的替代方案，提供更强大的组件化开发体验。
+- [Flask 集成](https://yonld.github.io/purepy/guide/flask.html.md): Purepy 可以很好地与 Flask 框架集成，提供组件化的模板渲染能力。
+- [快速开始](https://yonld.github.io/purepy/guide/getting-started.html.md): 本指南将帮助你快速上手 Purepy，创建你的第一个应用。
+- [安装](https://yonld.github.io/purepy/guide/installation.html.md): 本指南将帮助你安装 Purepy。
+- [简介](https://yonld.github.io/purepy/guide/introduction.html.md): 欢迎使用 Purepy！这是一个受 ReactJS 启发的 Python 模板引擎，让你能够以函数式的方式创建 HTML、SVG 和 XML 内容。
+- [属性](https://yonld.github.io/purepy/guide/props.html.md): 属性（Props）是组件的输入，用于配置组件的行为和外观。本指南将详细介绍如何在 Purepy 中使用属性。
+- [TailwindCSS 集成](https://yonld.github.io/purepy/guide/tailwindcss.html.md): 本指南介绍如何在 Purepy 项目中集成和使用 TailwindCSS。
+- [工具函数](https://yonld.github.io/purepy/guide/utils.html.md): Purepy 提供了一些实用的工具函数来简化开发，这些函数在设置元素属性时会自动使用。
+
+## 中文 API 参考 (API Reference)
+
+- [API 参考](https://yonld.github.io/purepy/api/index.html.md): Purepy 提供了完整的 HTML、SVG 和 XML 标签支持，以及实用的工具函数。
+- [核心类](https://yonld.github.io/purepy/api/core.html.md): Purepy 的核心类提供了创建和操作 HTML、SVG 和 XML 元素的基础功能。
+- [HTML 标签](https://yonld.github.io/purepy/api/html-tags.html.md): Purepy 提供了完整的 HTML5 标签支持。所有标签都可以通过 pure.html 模块导入。
+- [SVG 标签](https://yonld.github.io/purepy/api/svg-tags.html.md): Purepy 提供了完整的 SVG（可缩放矢量图形）标签支持。所有 SVG 标签都可以通过 pure.svg 模块导入。
+
+## English Guide
+
+- [What is Purepy?](https://yonld.github.io/purepy/en/guide/index.html.md): Purepy is a Python template engine inspired by ReactJS functional components.
+- [Basic Usage](https://yonld.github.io/purepy/en/guide/basic-usage.html.md): This guide introduces the basic usage and syntax of Purepy.
+- [Components](https://yonld.github.io/purepy/en/guide/components.html.md): Components are one of the core concepts in Purepy, allowing you to split the UI into independent, reusable pieces. This guide will introduce how to create and use components.
+- [Core Concepts](https://yonld.github.io/purepy/en/guide/concepts.html.md): This chapter introduces the core concepts of Purepy to help you better understand and use this template engine.
+- [Django Integration](https://yonld.github.io/purepy/en/guide/django.html.md): Purepy integrates seamlessly with the Django framework as an alternative to traditional Django templates, providing a more powerful component-based development experience.
+- [Flask Integration](https://yonld.github.io/purepy/en/guide/flask.html.md): Purepy integrates seamlessly with the Flask framework, providing component-based template rendering capabilities.
+- [Getting Started](https://yonld.github.io/purepy/en/guide/getting-started.html.md): This guide will help you get started with Purepy quickly.
+- [Installation](https://yonld.github.io/purepy/en/guide/installation.html.md): This guide covers different ways to install and set up Purepy.
+- [Introduction](https://yonld.github.io/purepy/en/guide/introduction.html.md): Welcome to Purepy! This is a Python template engine inspired by ReactJS that allows you to create HTML, SVG, and XML content in a functional way.
+- [Props](https://yonld.github.io/purepy/en/guide/props.html.md): Props (Properties) are the inputs to components, used to configure component behavior and appearance. This guide will detail how to use props in Purepy.
+- [TailwindCSS Integration](https://yonld.github.io/purepy/en/guide/tailwindcss.html.md): This guide shows how to integrate and use TailwindCSS with Purepy projects.
+- [Utility Functions](https://yonld.github.io/purepy/en/guide/utils.html.md): Purepy provides several utility functions to simplify development. These functions are automatically used when setting element attributes.
+
+## English API Reference
+
+- [API Reference](https://yonld.github.io/purepy/en/api/index.html.md): Purepy provides complete HTML, SVG, and XML tag support, along with useful utility functions.
+- [Core Classes](https://yonld.github.io/purepy/en/api/core.html.md): Purepy's core classes provide the foundation for creating and manipulating HTML, SVG, and XML elements.
+- [HTML Tags](https://yonld.github.io/purepy/en/api/html-tags.html.md): Purepy provides complete HTML5 tag support. All tags can be imported from the pure.html module.
+- [SVG Tags](https://yonld.github.io/purepy/en/api/svg-tags.html.md): Purepy provides complete SVG (Scalable Vector Graphics) tag support. All SVG tags can be imported from the pure.svg module.

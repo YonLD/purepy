@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "description": "Documentation for Purepy",
   "scripts": {
-    "docs:dev": "vitepress dev docs",
-    "docs:build": "vitepress build docs",
+    "docs:dev": "node scripts/generate-llms.mjs && vitepress dev docs",
+    "docs:build": "node scripts/generate-llms.mjs && vitepress build docs && node scripts/publish-markdown.mjs",
     "docs:preview": "vitepress preview docs"
   },
   "devDependencies": {
     "vitepress": "^1.0.0-rc.44"
-  }
+  },
+  "type": "module"
 }
