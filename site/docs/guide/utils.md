@@ -1,22 +1,22 @@
-# 工具函数
+# Utility Functions
 
-Purepy 提供了一些实用的工具函数来简化开发，这些函数在设置元素属性时会自动使用。
+Purepy provides several utility functions to simplify development. These functions are automatically used when setting element attributes.
 
-## clx 函数
+## clx Function
 
-`clx` 函数用于合并类名，支持字符串、数组和条件类名。
+The `clx` function is used to merge class names, supporting strings, arrays, and conditional class names.
 
-### 基本用法
+### Basic Usage {#clx-basic-usage}
 
 ```python
 from pure.clx import clx
 
-# 合并多个字符串类名
+# Merge multiple string class names
 classes = clx('btn', 'btn-primary', 'large')
-print(classes)  # 输出: btn btn-primary large
+print(classes)  # Output: btn btn-primary large
 ```
 
-### 条件类名
+### Conditional Class Names
 
 ```python
 from pure.clx import clx
@@ -29,10 +29,10 @@ classes = clx(
     'active' if is_active else None,
     'disabled' if is_disabled else None
 )
-print(classes)  # 输出: btn active
+print(classes)  # Output: btn active
 ```
 
-### 字典支持
+### Dictionary Support
 
 ```python
 from pure.clx import clx
@@ -46,12 +46,12 @@ classes = clx(
         'large': None
     }
 )
-print(classes)  # 输出: btn btn-primary active
+print(classes)  # Output: btn btn-primary active
 ```
 
-### 在 class_name() 方法中的内置使用
+### Built-in Usage in class_name() Method
 
-`class_name()` 方法内置了 `clx` 函数，可以直接传递多个参数：
+The `class_name()` method has built-in `clx` function support, allowing you to pass multiple arguments directly:
 
 ```python
 from pure.html import div
@@ -59,20 +59,20 @@ from pure.html import div
 is_active = True
 size = 'large'
 
-div('内容').class_name('btn', 'btn-primary', 'active' if is_active else None, size).to_print()
+div('content').class_name('btn', 'btn-primary', 'active' if is_active else None, size).print()
 
-# 等同于
+# Equivalent to
 from pure.clx import clx
 
 classes = clx('btn', 'btn-primary', 'active' if is_active else None, size)
-div('内容').class_name(classes).to_print()
+div('content').class_name(classes).print()
 ```
 
-## sty 函数
+## sty Function
 
-`sty` 函数用于将样式字典转换为 CSS 字符串。
+The `sty` function is used to convert style dictionaries to CSS strings.
 
-### 基本用法
+### Basic Usage {#sty-basic-usage}
 
 ```python
 from pure.sty import sty
@@ -82,10 +82,10 @@ styles = sty({
     'height': '36px',
     'border': '1px solid #fff'
 })
-print(styles)  # 输出: background-color: red; height: 36px; border: 1px solid #fff;
+print(styles)  # Output: background-color: red; height: 36px; border: 1px solid #fff;
 ```
 
-### 条件样式
+### Conditional Styles
 
 ```python
 from pure.sty import sty
@@ -97,27 +97,27 @@ styles = sty({
     'color': color,
     'display': 'block' if is_visible else 'none',
     'opacity': 1 if is_visible else 0,
-    'margin': None,  # 会被忽略
-    'padding': False # 会被忽略
+    'margin': None,  # Will be ignored
+    'padding': False # Will be ignored
 })
-print(styles)  # 输出: color: blue; display: block; opacity: 1;
+print(styles)  # Output: color: blue; display: block; opacity: 1;
 ```
 
-### 在 style() 方法中的内置使用
+### Built-in Usage in style() Method
 
-`style()` 方法内置了 `sty` 函数，可以直接传递字典：
+The `style()` method has built-in `sty` function support, allowing you to pass dictionaries directly:
 
 ```python
 from pure.html import div
 
-div('内容').style({
+div('content').style({
     'background-color': '#f0f0f0',
     'padding': '20px',
     'border-radius': '8px',
     'margin': '10px 0'
-}).to_print()
+}).print()
 
-# 等同于
+# Equivalent to
 from pure.sty import sty
 
 styles = sty({
@@ -126,57 +126,57 @@ styles = sty({
     'border-radius': '8px',
     'margin': '10px 0'
 })
-div('内容').style(styles).to_print()
+div('content').style(styles).print()
 ```
 
-## raw_html 函数
+## raw_html Function
 
-`raw_html` 函数用于插入原始 HTML 内容，不会被转义。
+The `raw_html` function is used to insert raw HTML content that won't be escaped.
 
-### 基本用法
+### Basic Usage {#raw-html-basic-usage}
 
 ```python
 from pure.html import div
 from pure.raw import raw_html
 
 div(
-    raw_html('<strong>这是粗体文本</strong>'),
-    raw_html('<em>这是斜体文本</em>')
-).to_print()
+    raw_html('<strong>This is bold text</strong>'),
+    raw_html('<em>This is italic text</em>')
+).print()
 ```
 
-### 注意事项
+### Security Considerations
 
-使用 `raw_html` 时要确保内容是安全的，避免 XSS 攻击：
+When using `raw_html`, ensure the content is safe to avoid XSS attacks:
 
 ```python
 from pure.html import div
 from pure.raw import raw_html
 import html
 
-# 安全的使用方式
+# Safe usage
 user_input = "<script>alert('xss')</script>"
 safe_html = html.escape(user_input)
-div(raw_html(safe_html)).to_print()
+div(raw_html(safe_html)).print()
 
-# 或者使用已知安全的 HTML
+# Or use known safe HTML
 icon_html = '<svg><path d="..."/></svg>'
-div(raw_html(icon_html)).to_print()
+div(raw_html(icon_html)).print()
 ```
 
-## raw_xml 函数
+## raw_xml Function
 
-`raw_xml` 函数用于插入原始 XML 内容：
+The `raw_xml` function is used to insert raw XML content:
 
 ```python
 from pure.raw import raw_xml
 
-xml_content = raw_xml('<item id="1">内容</item>')
+xml_content = raw_xml('<item id="1">content</item>')
 ```
 
-## 实际应用示例
+## Practical Examples
 
-### 动态按钮组件
+### Dynamic Button Component
 
 ```python
 from pure.html import button
@@ -189,7 +189,7 @@ def Button(props):
     loading = props.get('loading', False)
 
     return button(
-        '加载中...' if loading else text
+        'Loading...' if loading else text
     ).class_name(
         'btn',
         f'btn-{variant}',
@@ -201,16 +201,16 @@ def Button(props):
         'cursor': 'not-allowed' if disabled else 'pointer'
     }).disabled(disabled)
 
-# 使用示例
+# Usage example
 Button({
-    'text': '提交',
+    'text': 'Submit',
     'variant': 'success',
     'size': 'large',
     'loading': False
-}).to_print()
+}).print()
 ```
 
-### 响应式卡片组件
+### Responsive Card Component
 
 ```python
 from pure.html import div, h3, p
@@ -235,17 +235,17 @@ def Card(props):
         'color': '#fff' if theme == 'dark' else '#333'
     })
 
-# 使用示例
+# Usage example
 Card({
-    'title': '特色卡片',
-    'content': '这是一个特色卡片的内容',
+    'title': 'Featured Card',
+    'content': 'This is a featured card content',
     'featured': True,
     'theme': 'dark'
-}).to_print()
+}).print()
 ```
 
-## 下一步
+## Next Steps
 
-- [基本用法](/guide/basic-usage) - 学习基础语法和用法
-- [组件](/guide/components) - 学习如何创建和使用组件
-- [TailwindCSS 集成](/guide/tailwindcss) - 了解如何与 TailwindCSS 配合使用
+- [Basic Usage](/guide/basic-usage) - Learn basic syntax and usage
+- [Components](/guide/components) - Learn how to create and use components
+- [TailwindCSS Integration](/guide/tailwindcss) - Learn how to work with TailwindCSS

@@ -1,240 +1,242 @@
-# 核心类
+# Core Classes
 
-Purepy 的核心类提供了创建和操作 HTML、SVG 和 XML 元素的基础功能。
+Purepy's core classes provide the foundation for creating and manipulating HTML, SVG, and XML elements.
 
-## Tag 类
+## Tag Class
 
-`Tag` 是所有元素的基类，提供了基本的元素操作功能。
+`Tag` is the base class for all elements, providing basic element manipulation functionality.
 
-### 基本用法
+### Basic Usage {#tag-class-basic-usage}
 
 ```python
 from pure.core.Tag import Tag
 
-# 创建基本标签
-tag = Tag('div', ('内容'))
+# Create basic tag
+tag = Tag('div', ('Content'))
 ```
 
-### 主要方法
+### Main Methods
 
-#### 属性设置
+#### Attribute Setting
 
 ```python
-# 设置 CSS 类
+# Set CSS class
 tag.class_name('container')
 
-# 设置 ID
+# Set ID
 tag.id('main-content')
 
-# 设置数据属性
+# Set data attributes
 tag.data_id('123')
 tag.data_type('card')
 
-# 设置 ARIA 属性
-tag.aria_label('按钮')
+# Set ARIA attributes
+tag.aria_label('Button')
 tag.aria_hidden('true')
 
-# 设置样式
+# Set styles
 tag.style({'color': 'red', 'font-size': '16px'})
 ```
 
-#### 内容操作
+#### Content Operations
 
 ```python
-# 添加子元素
-tag.append(child_element)
-
-# 设置文本内容
-tag.text('新的文本内容')
-
-# 获取子元素
+# Get child elements
 children = tag.get_children()
+
+# Add children using function call
+tag(child_element1, child_element2)
+
+# Create element with children directly
+tag = Tag('div', ('Child 1', 'Child 2'))
 ```
 
-#### 输出方法
+#### Output Methods
 
 ```python
-# 转换为 HTML 字符串
+# Convert to HTML string
 html_string = str(tag)
 
-# 打印 HTML
-tag.to_print()
+# Print HTML
+tag.print()
 
-# 转换为 JSON
+# Convert to JSON
 json_data = tag.to_JSON()
 ```
 
-## HTML 类
+## HTML Class
 
-`HTML` 类继承自 `Tag`，专门用于 HTML 元素，提供了额外的 HTML 特定功能。
+`HTML` class extends `Tag`, specifically for HTML elements, providing additional HTML-specific functionality.
 
-### 基本用法
+### Basic Usage {#html-class-basic-usage}
 
 ```python
 from pure.core.HTML import HTML
 
-# 创建 HTML 元素
-html_element = HTML('div', '内容')
+# Create HTML element
+html_element = HTML('div', 'Content')
 ```
 
-### HTML 特有方法
+### HTML-specific Methods
 
-#### 文档保存
+#### Document Saving
 
 ```python
 from pure.html import html, head, title, body, div
 
-# 创建完整的 HTML 文档
+# Create complete HTML document
 page = html(
-    head(title('页面标题')),
-    body(div('页面内容'))
+    head(title('Page Title')),
+    body(div('Page Content'))
 )
 
-# 保存为 HTML 文件（包含 DOCTYPE）
-# 注意：Purepy 目前不支持 to_save 方法，需要手动保存
-with open('output.html', 'w', encoding='utf-8') as f:
-    f.write('<!DOCTYPE html>\n' + str(page))
+# Save as HTML file (with DOCTYPE)
+page.save('output.html')
 ```
 
-#### 表单元素支持
+#### Form Element Support
 
 ```python
 from pure.html import form, input, button
 
-# 表单元素的特殊属性
+# Form elements with special attributes
 form_element = form(
     input().type('text').name('username').required(True),
-    button('提交').type('submit')
+    button('Submit').type('submit')
 ).action('/submit').method('post')
 ```
 
-#### 媒体元素支持
+#### Media Element Support
 
 ```python
 from pure.html import img, video, audio
 
-# 图片元素
-img_element = img().src('image.jpg').alt('描述').width('300').height('200')
+# Image element
+img_element = img().src('image.jpg').alt('Description').width('300').height('200')
 
-# 视频元素
+# Video element
 video_element = video().src('video.mp4').controls(True).autoplay(False)
 
-# 音频元素
+# Audio element
 audio_element = audio().src('audio.mp3').controls(True)
 ```
 
-## SVG 类
+## SVG Class
 
-`SVG` 类用于创建 SVG 图形元素。
+`SVG` class is used for creating SVG graphic elements.
 
-### 基本用法
+### Basic Usage {#svg-class-basic-usage}
 
 ```python
 from pure.core.SVG import SVG
 
-# 创建 SVG 元素
+# Create SVG element
 svg_element = SVG('circle')
 ```
 
-### SVG 特有方法
+### SVG-specific Methods
 
-#### 几何属性
+#### Geometric Attributes
 
 ```python
 from pure.svg import svg, circle, rect, line
 
-# 圆形
+# Circle
 circle_element = circle().cx('50').cy('50').r('40').fill('red')
 
-# 矩形
+# Rectangle
 rect_element = rect().x('10').y('10').width('100').height('50').fill('blue')
 
-# 直线
+# Line
 line_element = line().x1('0').y1('0').x2('100').y2('100').stroke('black')
 ```
 
-#### SVG 容器
+#### SVG Container
 
 ```python
 from pure.svg import svg, g
 
-# SVG 根元素
+# SVG root element
 svg_root = svg(
     circle().cx('50').cy('50').r('40').fill('red'),
     rect().x('10').y('10').width('100').height('50').fill('blue')
 ).width('200').height('200').viewBox('0 0 200 200')
 
-# 分组元素
+# Group element
 group = g(
     circle().cx('25').cy('25').r('20'),
     circle().cx('75').cy('25').r('20')
 ).transform('translate(10, 10)')
 ```
 
-#### 保存 SVG
+#### Save SVG
 
 ```python
-# 保存为 SVG 文件
-# 注意：Purepy 目前不支持 to_save 方法，需要手动保存
-with open('image.svg', 'w', encoding='utf-8') as f:
-    f.write(str(svg_root))
+# Save as SVG file
+svg_root.save('image.svg')
 ```
 
-## XML 类
+## XML Class
 
-`XML` 类用于创建任意的 XML 元素。
+`XML` class is used for creating arbitrary XML elements.
 
-### 基本用法
+### Basic Usage {#xml-class-basic-usage}
 
 ```python
 from pure.core.XML import XML
 
-# 创建自定义 XML 元素
-xml_element = XML('custom-tag', '内容')
+# Create custom XML element
+xml_element = XML('custom-tag', 'Content')
 ```
 
-### XML 特有功能
+### XML-specific Features
 
-#### 命名空间支持
+#### Namespace Support
 
 ```python
-# 带命名空间的元素
-xml_element = XML('ns:element', '内容').xmlns_ns('http://example.com/namespace')
+# Element with namespace
+xml_element = XML('ns:element', 'Content').xmlns_ns('http://example.com/namespace')
 ```
 
-#### 自定义属性
+#### Custom Attributes
 
 ```python
-# 任意属性名
+# Use dynamic attribute methods (underscore converts to dash)
 xml_element = XML('item') \
-    .set_attr('custom-attr', 'value') \
-    .set_attr('another_attr', 'another_value')
+    .data_id('123') \
+    .data_type('card')
+
+# Or use set_attrs for batch setting
+xml_element = XML('item').set_attrs({
+    'custom-attr': 'value',
+    'another_attr': 'another_value'
+})
 ```
 
-## 工具函数
+## Utility Functions
 
-### clx 函数
+### clx Function
 
-用于处理条件 CSS 类名：
+For handling conditional CSS class names:
 
 ```python
 from pure.clx import clx
 
-# 基本用法
+# Basic usage
 classes = clx('btn', 'btn-primary')  # "btn btn-primary"
 
-# 条件类名
+# Conditional classes
 is_active = True
 is_disabled = False
 classes = clx('btn', {
-    'active': is_active,      # 包含 'active'
-    'disabled': is_disabled   # 不包含 'disabled'
+    'active': is_active,      # includes 'active'
+    'disabled': is_disabled   # excludes 'disabled'
 })  # "btn active"
 
-# 混合用法
+# Mixed usage
 classes = clx(
-    'btn',                    # 总是包含
-    'btn-primary',           # 总是包含
+    'btn',                    # always included
+    'btn-primary',           # always included
     {
         'active': is_active,
         'disabled': is_disabled
@@ -242,116 +244,117 @@ classes = clx(
 )
 ```
 
-### sty 函数
+### sty Function
 
-用于处理样式对象：
+For handling style objects:
 
 ```python
 from pure.sty import sty
 
-# 将字典转换为 CSS 字符串
+# Convert dictionary to CSS string
 styles = sty({
     'color': 'red',
     'font-size': '16px',
     'background-color': '#f0f0f0',
     'margin': '10px 20px'
 })
-# 返回: "color: red; font-size: 16px; background-color: #f0f0f0; margin: 10px 20px;"
+# Returns: "color: red; font-size: 16px; background-color: #f0f0f0; margin: 10px 20px;"
 
-# 在元素中使用
+# Use in elements
 from pure.html import div
-div('内容').style(styles)
+div('Content').style(styles)
 ```
 
-### Raw 类
+### Raw Class
 
-用于插入原始 HTML 内容：
+For inserting raw HTML content:
 
 ```python
 from pure.raw import Raw
 
-# 插入原始 HTML
-raw_content = Raw('<strong>粗体文本</strong>')
+# Insert raw HTML
+raw_content = Raw('<strong>Bold text</strong>')
 
-# 在元素中使用
+# Use in elements
 from pure.html import div
-div('前缀 ', raw_content, ' 后缀').to_print()
-# 输出: <div>前缀 <strong>粗体文本</strong> 后缀</div>
+div('Prefix ', raw_content, ' Suffix').print()
+# Output: <div>Prefix <strong>Bold text</strong> Suffix</div>
 ```
 
-## 方法链
+## Method Chaining
 
-所有核心类都支持方法链，允许流畅的 API 调用：
+All core classes support method chaining for fluent API calls:
 
 ```python
 from pure.html import div
 from pure.clx import clx
 from pure.sty import sty
 
-# 链式调用示例
-element = div('内容') \
+# Method chaining example
+element = div('Content') \
     .class_name(clx('card', {'active': True})) \
     .style(sty({'padding': '20px', 'margin': '10px'})) \
     .id('main-card') \
     .data_component('card') \
-    .aria_label('主要卡片')
+    .aria_label('Main card')
 
-element.to_print()
+element.print()
 ```
 
-## 自闭合标签
+## Self-closing Tags
 
-某些 HTML 标签会自动自闭合：
+Certain HTML tags automatically self-close:
 
 ```python
 from pure.html import img, br, hr, input, meta, link
 
-# 这些标签自动自闭合
-img().src('image.jpg').alt('图片')     # <img src="image.jpg" alt="图片" />
-br()                                   # <br />
-hr()                                   # <hr />
-input().type('text').name('username') # <input type="text" name="username" />
-meta().charset('UTF-8')               # <meta charset="UTF-8" />
+# These tags automatically self-close
+img().src('image.jpg').alt('Image')     # <img src="image.jpg" alt="Image" />
+br()                                    # <br />
+hr()                                    # <hr />
+input().type('text').name('username')  # <input type="text" name="username" />
+meta().charset('UTF-8')                # <meta charset="UTF-8" />
 link().rel('stylesheet').href('style.css') # <link rel="stylesheet" href="style.css" />
 ```
 
-## 错误处理
+## Error Handling
 
-核心类提供了基本的错误处理：
+Core classes provide basic error handling:
 
 ```python
 try:
-    # 创建元素
-    element = div('内容').class_name('container')
+    # Create element
+    element = div('Content').class_name('container')
 
-    # 设置属性
+    # Set attributes
     element.id('main').data_value('123')
 
-    # 输出
-    element.to_print()
+    # Output
+    element.print()
 
 except Exception as e:
-    print(f"创建元素时发生错误: {e}")
+    print(f"Error creating element: {e}")
 ```
 
-## 性能考虑
+## Performance Considerations
 
-### 元素重用
+### Element Reuse
 
 ```python
-# 避免重复创建相同的元素
-base_button = button().class_name('btn')
+# Define reusable component function
+def base_button(text='Button'):
+    return button(text).class_name('btn')
 
-# 克隆并修改
-primary_button = base_button.clone().class_name('btn btn-primary').text('主要按钮')
-secondary_button = base_button.clone().class_name('btn btn-secondary').text('次要按钮')
+# Create variations
+primary_button = base_button('Primary Button').class_name('btn btn-primary')
+secondary_button = base_button('Secondary Button').class_name('btn btn-secondary')
 ```
 
-### 批量操作
+### Batch Operations
 
 ```python
-# 批量设置属性
-element = div('内容')
+# Batch attribute setting
+element = div('Content')
 attributes = {
     'class': 'container',
     'id': 'main',
@@ -364,11 +367,11 @@ for key, value in attributes.items():
     elif key == 'id':
         element.id(value)
     else:
-        element.set_attr(key, value)
+        element.set_attrs({key: value})
 ```
 
-## 下一步
+## Next Steps
 
-- [HTML 标签](/api/html-tags) - 了解所有可用的 HTML 标签
-- [SVG 标签](/api/svg-tags) - 了解 SVG 图形元素
-- [基本用法](/guide/basic-usage) - 学习基础语法
+- [HTML Tags](/api/html-tags) - Learn about all available HTML tags
+- [SVG Tags](/api/svg-tags) - Learn about SVG graphic elements
+- [Basic Usage](/guide/basic-usage) - Learn basic syntax

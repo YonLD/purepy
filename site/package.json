@@ -1,11 +1,12 @@
 {
   "name": "purepy-docs",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Documentation for Purepy",
   "scripts": {
     "docs:dev": "node scripts/generate-llms.mjs && vitepress dev docs",
     "docs:build": "node scripts/generate-llms.mjs && vitepress build docs && node scripts/publish-markdown.mjs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "docs:qa": "node scripts/check-docs.mjs"
   },
   "devDependencies": {
     "vitepress": "^1.0.0-rc.44"

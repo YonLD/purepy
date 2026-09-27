@@ -1,22 +1,22 @@
-# Flask 集成
+# Flask Integration
 
-Purepy 可以很好地与 Flask 框架集成，提供组件化的模板渲染能力。
+Purepy integrates seamlessly with the Flask framework, providing component-based template rendering capabilities.
 
-## 为什么选择这个组合？
+## Why Choose This Combination?
 
-- **Purepy**: 提供组件化的 Python 模板渲染
-- **Flask**: 提供轻量级的 Web 框架
-- **完美互补**: Purepy 处理视图层，Flask 处理路由和业务逻辑
+- **Purepy**: Provides component-based Python template rendering
+- **Flask**: Provides lightweight web framework
+- **Perfect Complement**: Purepy handles the view layer, Flask handles routing and business logic
 
-## 快速开始
+## Quick Start
 
-### 1. 安装依赖
+### 1. Install Dependencies
 
 ```bash
 pip install flask yonld-purepy
 ```
 
-### 2. 基本集成
+### 2. Basic Integration
 
 ```python
 from flask import Flask
@@ -42,13 +42,13 @@ def Layout(props):
 @app.route('/')
 def index():
     content = div(
-        h1('欢迎使用 Purepy + Flask'),
-        p('这是一个使用 Purepy 和 Flask 构建的应用'),
-        a('了解更多').href('/about')
+        h1('Welcome to Purepy + Flask'),
+        p('This is an application built with Purepy and Flask'),
+        a('Learn more').href('/about')
     )
     
     page = Layout({
-        'title': '首页',
+        'title': 'Home',
         'content': content
     })
     
@@ -57,12 +57,12 @@ def index():
 @app.route('/about')
 def about():
     content = div(
-        h1('关于我们'),
-        p('Purepy 是一个受 ReactJS 启发的 Python 模板引擎。')
+        h1('About Us'),
+        p('Purepy is a Python template engine inspired by ReactJS.')
     )
     
     page = Layout({
-        'title': '关于我们',
+        'title': 'About Us',
         'content': content
     })
     
@@ -72,15 +72,15 @@ if __name__ == '__main__':
     app.run(debug=True)
 ```
 
-### 3. 组件化开发
+### 3. Component-Based Development
 
 ```python
 from flask import Flask, request, jsonify
-from pure.html import html, head, title, body, div, h1, h2, p, form, input, button, ul, li
+from pure.html import html, head, title, body, div, h1, h2, p, form, input, button, ul, li, style
 
 app = Flask(__name__)
 
-# 布局组件
+# Layout component
 def Layout(props):
     page_title = props.get('title', 'Purepy App')
     content = props.get('content', '')
@@ -88,7 +88,7 @@ def Layout(props):
     return html(
         head(
             title(page_title),
-            # 添加样式
+            # Add styles
             style("""
                 body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
                 .container { max-width: 800px; margin: 0 auto; }
@@ -105,7 +105,7 @@ def Layout(props):
         )
     )
 
-# 卡片组件
+# Card component
 def Card(props):
     title = props.get('title', '')
     content = props.get('content', '')
@@ -115,63 +115,63 @@ def Card(props):
         p(content)
     ).class_name('card')
 
-# 表单组件
+# Form component
 def ContactForm():
     return form(
         div(
-            input().type('text').name('name').placeholder('姓名').required()
+            input().type('text').name('name').placeholder('Name').required()
         ).class_name('form-group'),
         div(
-            input().type('email').name('email').placeholder('邮箱').required()
+            input().type('email').name('email').placeholder('Email').required()
         ).class_name('form-group'),
         div(
-            input().type('text').name('message').placeholder('消息').required()
+            input().type('text').name('message').placeholder('Message').required()
         ).class_name('form-group'),
-        button('提交').type('submit').class_name('btn')
+        button('Submit').type('submit').class_name('btn')
     ).method('POST').action('/contact')
 
-# 路由
+# Routes
 @app.route('/')
 def index():
     content = div(
-        h1('欢迎使用 Purepy + Flask'),
+        h1('Welcome to Purepy + Flask'),
         Card({
-            'title': '组件化开发',
-            'content': '使用 Purepy 创建可重用的组件，让代码更易维护。'
+            'title': 'Component-Based Development',
+            'content': 'Use Purepy to create reusable components for easier maintenance.'
         }),
         Card({
-            'title': 'Flask 集成',
-            'content': 'Purepy 与 Flask 完美集成，提供强大的模板渲染能力。'
+            'title': 'Flask Integration',
+            'content': 'Purepy integrates perfectly with Flask for powerful template rendering.'
         })
     )
     
     return str(Layout({
-        'title': '首页',
+        'title': 'Home',
         'content': content
     }))
 
 @app.route('/contact', methods=['GET', 'POST'])
 def contact():
     if request.method == 'POST':
-        # 处理表单提交
+        # Handle form submission
         name = request.form.get('name')
         email = request.form.get('email')
         message = request.form.get('message')
         
-        # 这里可以保存到数据库或发送邮件
+        # Here you can save to database or send email
         
         content = div(
-            h1('联系我们'),
-            p(f'谢谢 {name}，我们已收到您的消息！')
+            h1('Contact Us'),
+            p(f'Thank you {name}, we have received your message!')
         )
     else:
         content = div(
-            h1('联系我们'),
+            h1('Contact Us'),
             ContactForm()
         )
     
     return str(Layout({
-        'title': '联系我们',
+        'title': 'Contact Us',
         'content': content
     }))
 
@@ -179,9 +179,9 @@ if __name__ == '__main__':
     app.run(debug=True)
 ```
 
-## 高级用法
+## Advanced Usage
 
-### 1. 模板继承
+### 1. Template Inheritance
 
 ```python
 # templates.py
@@ -219,23 +219,23 @@ from templates import BaseTemplate
 @app.route('/')
 def index():
     nav_items = [
-        {'text': '首页', 'url': '/'},
-        {'text': '关于', 'url': '/about'},
-        {'text': '联系', 'url': '/contact'}
+        {'text': 'Home', 'url': '/'},
+        {'text': 'About', 'url': '/about'},
+        {'text': 'Contact', 'url': '/contact'}
     ]
     
     content = div(
-        h1('首页内容')
+        h1('Home Content')
     )
     
     return str(BaseTemplate({
-        'title': '首页',
+        'title': 'Home',
         'content': content,
         'nav_items': nav_items
     }))
 ```
 
-### 2. 数据绑定
+### 2. Data Binding
 
 ```python
 from flask import Flask, render_template_string
@@ -245,43 +245,43 @@ app = Flask(__name__)
 
 def UserList(users):
     return div(
-        h1('用户列表'),
+        h1('User List'),
         ul(
             *[li(
-                p(f'姓名: {user["name"]}'),
-                p(f'邮箱: {user["email"]}')
+                p(f'Name: {user["name"]}'),
+                p(f'Email: {user["email"]}')
             ) for user in users]
         )
     )
 
 @app.route('/users')
 def users():
-    # 模拟从数据库获取用户数据
+    # Simulate getting user data from database
     users_data = [
-        {'name': '张三', 'email': 'zhangsan@example.com'},
-        {'name': '李四', 'email': 'lisi@example.com'},
-        {'name': '王五', 'email': 'wangwu@example.com'}
+        {'name': 'John Doe', 'email': 'john@example.com'},
+        {'name': 'Jane Smith', 'email': 'jane@example.com'},
+        {'name': 'Bob Johnson', 'email': 'bob@example.com'}
     ]
     
     content = UserList(users_data)
     
     return str(Layout({
-        'title': '用户列表',
+        'title': 'User List',
         'content': content
     }))
 ```
 
-### 3. API 响应
+### 3. API Responses
 
 ```python
 from flask import jsonify
 
 @app.route('/api/component')
 def api_component():
-    # 返回组件的 HTML 字符串，用于 AJAX 更新
+    # Return component HTML string for AJAX updates
     component = Card({
-        'title': '动态内容',
-        'content': '这是通过 API 加载的内容'
+        'title': 'Dynamic Content',
+        'content': 'This content was loaded via API'
     })
     
     return jsonify({
@@ -290,9 +290,9 @@ def api_component():
     })
 ```
 
-## 最佳实践
+## Best Practices
 
-### 1. 组件组织
+### 1. Component Organization
 
 ```python
 # components/
@@ -305,14 +305,14 @@ def api_component():
 from pure.html import html, head, title, body, div
 
 def Layout(props):
-    # 布局组件实现
+    # Layout component implementation
     pass
 
 # components/forms.py
 from pure.html import form, input, button
 
 def ContactForm(props):
-    # 表单组件实现
+    # Form component implementation
     pass
 
 # app.py
@@ -320,36 +320,36 @@ from components.layout import Layout
 from components.forms import ContactForm
 ```
 
-### 2. 错误处理
+### 2. Error Handling
 
 ```python
 @app.errorhandler(404)
 def not_found(error):
     content = div(
-        h1('页面未找到'),
-        p('抱歉，您访问的页面不存在。'),
-        a('返回首页').href('/')
+        h1('Page Not Found'),
+        p('Sorry, the page you are looking for does not exist.'),
+        a('Return Home').href('/')
     )
     
     return str(Layout({
-        'title': '404 - 页面未找到',
+        'title': '404 - Page Not Found',
         'content': content
     })), 404
 ```
 
-### 3. 性能优化
+### 3. Performance Optimization
 
 ```python
 from functools import lru_cache
 
 @lru_cache(maxsize=128)
 def cached_component(data_hash):
-    # 缓存静态组件
+    # Cache static components
     return str(SomeComponent(data))
 ```
 
-## 下一步
+## Next Steps
 
-- [Django 集成](/guide/django) - 了解如何与 Django 配合使用
-- [组件](/guide/components) - 深入学习组件开发
-- [API 文档](/api/) - 查看完整的 API 参考
+- [Django Integration](/guide/django) - Learn how to work with Django
+- [Components](/guide/components) - Deep dive into component development
+- [API Documentation](/api/) - View complete API reference

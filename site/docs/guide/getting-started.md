@@ -1,225 +1,287 @@
-# 快速开始
+# Getting Started
 
-本指南将帮助你快速上手 Purepy，创建你的第一个应用。
+This guide will help you get started with Purepy quickly.
 
-## 安装
+## Installation
 
-首先安装 Purepy：
+Install Purepy using pip:
 
 ```bash
 pip install yonld-purepy
 ```
 
-## 创建第一个应用
+## Your First Purepy Application
 
-### 1. 创建项目目录
-
-```bash
-mkdir my-purepy-app
-cd my-purepy-app
-```
-
-### 2. 创建入口文件
-
-创建 `app.py` 文件：
+Let's create a simple HTML page using Purepy:
 
 ```python
-from pure.html import html, head, meta, title, body, div, h1, p, a
+from pure.html import html, head, title, body, div, h1, p
 
-def App():
+def create_page():
     return html(
         head(
-            meta().charset('UTF-8'),
-            meta().name('viewport').content('width=device-width, initial-scale=1.0'),
-            title('我的第一个 Purepy 应用')
+            title('My First Purepy Page')
         ),
         body(
             div(
-                h1('欢迎使用 Purepy'),
-                p('这是你的第一个 Purepy 应用！'),
-                a('了解更多').href('https://github.com/YonLD/purepy')
+                h1('Welcome to Purepy!'),
+                p('This is your first page created with Purepy.')
             ).class_name('container')
         )
     )
 
-if __name__ == '__main__':
-    app = App()
-    print(app)
+# Generate and save the page
+page = create_page()
+page.save('index.html')
+print("Page created: index.html")
 ```
 
-### 3. 运行应用
+Run this script and you'll get an `index.html` file with the following content:
 
-```bash
-python app.py
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My First Purepy Page</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Purepy!</h1>
+        <p>This is your first page created with Purepy.</p>
+    </div>
+</body>
+</html>
 ```
 
-你将看到生成的 HTML 输出。
+## Basic Concepts
 
-## 添加样式
+### 1. Function-based Elements
 
-让我们为应用添加一些样式。修改 `app.py`：
+Every HTML tag is a function that returns an element object:
 
 ```python
-from pure.html import html, head, meta, title, style, body, div, h1, p, a
+from pure.html import div, h1, p
 
-def App():
-    return html(
-        head(
-            meta().charset('UTF-8'),
-            meta().name('viewport').content('width=device-width, initial-scale=1.0'),
-            title('我的第一个 Purepy 应用'),
-            style("""
-                body {
-                    font-family: Arial, sans-serif;
-                    margin: 0;
-                    padding: 20px;
-                    background-color: #f5f5f5;
-                }
-                .container {
-                    max-width: 600px;
-                    margin: 0 auto;
-                    background: white;
-                    padding: 30px;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-                }
-                h1 {
-                    color: #333;
-                    text-align: center;
-                }
-                p {
-                    color: #666;
-                    line-height: 1.6;
-                }
-                a {
-                    color: #007bff;
-                    text-decoration: none;
-                }
-                a:hover {
-                    text-decoration: underline;
-                }
-            """)
-        ),
-        body(
-            div(
-                h1('欢迎使用 Purepy'),
-                p('这是你的第一个 Purepy 应用！Purepy 让你可以使用纯 Python 代码来构建 HTML 内容。'),
-                p(
-                    '想了解更多？访问 ',
-                    a('GitHub 仓库').href('https://github.com/YonLD/purepy'),
-                    ' 获取更多信息。'
-                )
-            ).class_name('container')
-        )
+# Create elements
+title = h1('Page Title')
+content = p('Page content')
+container = div(title, content)
+```
+
+### 2. Method Chaining
+
+Set attributes using method chaining:
+
+```python
+from pure.html import div
+
+element = div('Content') \
+    .class_name('my-class') \
+    .id('my-id') \
+    .data_value('123')
+```
+
+### 3. Nested Elements
+
+Elements can contain other elements:
+
+```python
+from pure.html import div, ul, li
+
+menu = div(
+    ul(
+        li('Home'),
+        li('About'),
+        li('Contact')
     )
-
-if __name__ == '__main__':
-    app = App()
-    print(app)
+).class_name('navigation')
 ```
 
-## 创建组件
+## Working with Attributes
 
-Purepy 的强大之处在于组件化开发。让我们创建一些可重用的组件：
+### CSS Classes
+
+Use `class_name()` method (since `class` is a Python keyword):
 
 ```python
-from pure.html import html, head, meta, title, style, body, div, h1, h2, p, a, ul, li
+from pure.html import div
 
-def Header(props):
-    title = props.get('title', 'Purepy App')
-    return div(
-        h1(title)
-    ).class_name('header')
+div('Content').class_name('btn btn-primary')
+```
+
+### Data Attributes
+
+Use underscore instead of dash for attribute names:
+
+```python
+from pure.html import div
+
+div('Content') \
+    .data_id('123') \
+    .data_type('card') \
+    .aria_label('Button')
+```
+
+This generates:
+```html
+<div data-id="123" data-type="card" aria-label="Button">Content</div>
+```
+
+## Using Utility Functions
+
+### Class Names with clx
+
+```python
+from pure.html import div
+from pure.clx import clx
+
+is_active = True
+is_large = False
+
+classes = clx('btn', {
+    'active': is_active,
+    'large': is_large
+})
+
+div('Button').class_name(classes)
+```
+
+### Styles with sty
+
+```python
+from pure.html import div
+from pure.sty import sty
+
+styles = sty({
+    'color': 'red',
+    'font-size': '16px',
+    'padding': '10px'
+})
+
+div('Styled content').style(styles)
+```
+
+## Creating Components
+
+Organize your code by creating reusable components:
+
+```python
+from pure.html import div, h2, p, a
 
 def Card(props):
     title = props.get('title', '')
     content = props.get('content', '')
     link = props.get('link', '#')
-    
+
     return div(
-        h2(title),
-        p(content),
-        a('了解更多').href(link)
+        h2(title).class_name('card-title'),
+        p(content).class_name('card-content'),
+        a('Read More').href(link).class_name('card-link')
     ).class_name('card')
 
-def Footer():
-    return div(
-        p('© 2024 Purepy 应用')
-    ).class_name('footer')
+# Use the component
+my_card = Card({
+    'title': 'Welcome',
+    'content': 'This is a sample card.',
+    'link': '/welcome'
+})
 
-def App():
-    cards_data = [
-        {
-            'title': '简单易用',
-            'content': 'Purepy 提供简洁的 API，让你快速上手。',
-            'link': '/guide/basic-usage'
-        },
-        {
-            'title': '组件化',
-            'content': '通过组件化开发，让代码更易维护和复用。',
-            'link': '/guide/components'
-        },
-        {
-            'title': '类型安全',
-            'content': '完整的类型提示支持，提供更好的开发体验。',
-            'link': '/guide/concepts'
-        }
-    ]
-    
+my_card.print()
+```
+
+## Building a Complete Page
+
+Here's a more complete example:
+
+```python
+from pure.html import html, head, meta, title, link, body, header, nav, ul, li, a, main, div, h1, p, footer
+
+def create_website():
     return html(
         head(
             meta().charset('UTF-8'),
             meta().name('viewport').content('width=device-width, initial-scale=1.0'),
-            title('我的第一个 Purepy 应用'),
-            style("""
-                body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
-                .container { max-width: 800px; margin: 0 auto; }
-                .header { text-align: center; margin-bottom: 30px; }
-                .header h1 { color: #333; }
-                .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 30px 0; }
-                .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-                .card h2 { margin-top: 0; color: #333; }
-                .card p { color: #666; line-height: 1.6; }
-                .card a { color: #007bff; text-decoration: none; }
-                .footer { text-align: center; margin-top: 40px; color: #666; }
-            """)
+            title('My Website'),
+            link().rel('stylesheet').href('styles.css')
         ),
         body(
-            div(
-                Header({'title': '欢迎使用 Purepy'}),
+            header(
+                nav(
+                    ul(
+                        li(a('Home').href('/')),
+                        li(a('About').href('/about')),
+                        li(a('Contact').href('/contact'))
+                    ).class_name('nav-list')
+                ).class_name('navbar')
+            ),
+
+            main(
                 div(
-                    *[Card(card) for card in cards_data]
-                ).class_name('cards'),
-                Footer()
-            ).class_name('container')
+                    h1('Welcome to My Website'),
+                    p('This website was built using Purepy, a Python template engine inspired by ReactJS.')
+                ).class_name('hero')
+            ),
+
+            footer(
+                p('© 2024 My Website. All rights reserved.')
+            ).class_name('footer')
         )
     )
 
-if __name__ == '__main__':
-    app = App()
-    print(app)
+# Generate the website
+website = create_website()
+website.save('website.html')
 ```
 
-## 保存为 HTML 文件
+## Working with Lists
 
-你也可以将生成的 HTML 保存为文件：
+Generate dynamic content using Python's list comprehensions:
 
 ```python
-def save_to_file():
-    app = App()
-    with open('index.html', 'w', encoding='utf-8') as f:
-        f.write(str(app))
-    print('HTML 文件已保存为 index.html')
+from pure.html import div, ul, li
 
-if __name__ == '__main__':
-    save_to_file()
+def create_todo_list(items):
+    return div(
+        ul(
+            *[li(item) for item in items]
+        ).class_name('todo-list')
+    ).class_name('todo-container')
+
+# Usage
+todos = ['Learn Purepy', 'Build a website', 'Deploy to production']
+todo_list = create_todo_list(todos)
+todo_list.print()
 ```
 
-## 下一步
+## Conditional Rendering
 
-恭喜！你已经创建了第一个 Purepy 应用。接下来你可以：
+Use Python's conditional expressions for dynamic content:
 
-- [学习基本概念](/guide/concepts) - 深入理解 Purepy 的工作原理
-- [探索组件开发](/guide/components) - 学习如何创建复杂的组件
-- [查看 API 文档](/api/) - 了解所有可用的标签和方法
-- [集成到 Web 框架](/guide/flask) - 在 Flask 或 Django 中使用 Purepy
+```python
+from pure.html import div, p
+
+def welcome_message(user=None):
+    return div(
+        p(f'Welcome back, {user}!') if user else p('Please log in'),
+        p('This is the main content area.')
+    ).class_name('welcome')
+
+# Usage
+logged_in_view = welcome_message('John')
+guest_view = welcome_message()
+```
+
+## Next Steps
+
+Now that you've learned the basics, explore these topics:
+
+- [Basic Usage](/guide/basic-usage) - Detailed syntax and features
+- [TailwindCSS Integration](/guide/tailwindcss) - Style your components
+- [API Reference](/api/) - Complete API documentation
+
+## Tips for Success
+
+1. **Think in Components**: Break your UI into reusable functions
+2. **Use Python Features**: Leverage list comprehensions, conditionals, and loops
+3. **Keep it Simple**: Start with basic elements and gradually add complexity
+4. **Test Frequently**: Use `print()` to see your HTML output during development

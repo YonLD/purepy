@@ -1,175 +1,175 @@
-# SVG Tags
+# SVG 标签
 
-Purepy provides complete SVG (Scalable Vector Graphics) tag support. All SVG tags can be imported from the `pure.svg` module.
+Purepy 提供了完整的 SVG（可缩放矢量图形）标签支持。所有 SVG 标签都可以通过 `pure.svg` 模块导入。
 
-## SVG Root Element
+## SVG 根元素
 
-### svg Element
+### svg 元素
 
 ```python
 from pure.svg import svg
 
-# Basic SVG container
+# 基本 SVG 容器
 svg_container = svg(
-    # SVG content
+    # SVG 内容
 ).width('200').height('200').viewBox('0 0 200 200')
 
-# SVG with namespace
+# 带命名空间的 SVG
 svg_with_namespace = svg(
-    # SVG content
+    # SVG 内容
 ).xmlns('http://www.w3.org/2000/svg').version('1.1')
 ```
 
-## Basic Shapes
+## 基本形状
 
-### Rectangle
+### 矩形
 
 ```python
 from pure.svg import rect
 
-# Basic rectangle
+# 基本矩形
 basic_rect = rect().x('10').y('10').width('100').height('50').fill('blue')
 
-# Rounded rectangle
+# 圆角矩形
 rounded_rect = rect() \
     .x('10').y('10').width('100').height('50') \
     .rx('5').ry('5') \
     .fill('blue').stroke('black').stroke_width('2')
 ```
 
-### Circle
+### 圆形
 
 ```python
 from pure.svg import circle
 
-# Basic circle
+# 基本圆形
 basic_circle = circle().cx('50').cy('50').r('40').fill('red')
 
-# Circle with stroke
+# 带边框的圆形
 circle_with_stroke = circle() \
     .cx('50').cy('50').r('40') \
     .fill('red').stroke('black').stroke_width('3')
 ```
 
-### Ellipse
+### 椭圆
 
 ```python
 from pure.svg import ellipse
 
-# Ellipse
+# 椭圆
 ellipse_shape = ellipse() \
     .cx('100').cy('50').rx('80').ry('30') \
     .fill('green').stroke('blue').stroke_width('2')
 ```
 
-### Line
+### 直线
 
 ```python
 from pure.svg import line
 
-# Basic line
+# 基本直线
 basic_line = line() \
     .x1('0').y1('0').x2('100').y2('100') \
     .stroke('black').stroke_width('2')
 
-# Dashed line
+# 虚线
 dashed_line = line() \
     .x1('0').y1('50').x2('200').y2('50') \
     .stroke('red').stroke_width('3') \
     .stroke_dasharray('5,5')
 ```
 
-### Polyline
+### 折线
 
 ```python
 from pure.svg import polyline
 
-# Polyline
+# 折线
 polyline_shape = polyline() \
     .points('0,0 50,25 100,0 150,25 200,0') \
     .fill('none').stroke('blue').stroke_width('2')
 ```
 
-### Polygon
+### 多边形
 
 ```python
 from pure.svg import polygon
 
-# Triangle
+# 三角形
 triangle = polygon() \
     .points('50,0 0,100 100,100') \
     .fill('yellow').stroke('red').stroke_width('2')
 
-# Star
+# 五角星
 star = polygon() \
     .points('50,0 61,35 98,35 68,57 79,91 50,70 21,91 32,57 2,35 39,35') \
     .fill('gold').stroke('orange').stroke_width('1')
 ```
 
-## Paths
+## 路径
 
-### path Element
+### path 元素
 
 ```python
 from pure.svg import path
 
-# Basic path
+# 基本路径
 basic_path = path() \
     .d('M 10 10 L 90 90 L 10 90 Z') \
     .fill('purple').stroke('black').stroke_width('2')
 
-# Bezier curve
+# 贝塞尔曲线
 bezier_curve = path() \
     .d('M 10 80 Q 52.5 10, 95 80 T 180 80') \
     .fill('none').stroke('blue').stroke_width('3')
 
-# Arc
+# 圆弧
 arc_path = path() \
     .d('M 10 50 A 40 40 0 0 1 90 50') \
     .fill('none').stroke('green').stroke_width('4')
 ```
 
-## Text
+## 文本
 
-### text Element
+### text 元素
 
 ```python
 from pure.svg import text, tspan
 
-# Basic text
+# 基本文本
 basic_text = text('Hello SVG') \
     .x('50').y('50') \
     .font_family('Arial').font_size('16').fill('black')
 
-# Multiline text
+# 多行文本
 multiline_text = text(
-    tspan('First line').x('50').dy('0'),
-    tspan('Second line').x('50').dy('20'),
-    tspan('Third line').x('50').dy('20')
+    tspan('第一行').x('50').dy('0'),
+    tspan('第二行').x('50').dy('20'),
+    tspan('第三行').x('50').dy('20')
 ).font_family('Arial').font_size('14').fill('blue')
 
-# Text on path
+# 路径上的文本
 from pure.svg import textPath
 
 text_on_path = text(
-    textPath('Text along path').href('#path1')
+    textPath('沿路径的文本').href('#path1')
 ).font_family('Arial').font_size('12').fill('red')
 ```
 
-## Grouping and Structure
+## 分组和结构
 
-### g Element (Grouping)
+### g 元素（分组）
 
 ```python
 from pure.svg import g
 
-# Basic grouping
+# 基本分组
 basic_group = g(
     circle().cx('25').cy('25').r('20').fill('red'),
     rect().x('5').y('5').width('40').height('40').fill('none').stroke('blue')
 ).transform('translate(50, 50)')
 
-# Styled group
+# 带样式的分组
 styled_group = g(
     circle().cx('0').cy('0').r('10'),
     circle().cx('20').cy('0').r('10'),
@@ -177,12 +177,12 @@ styled_group = g(
 ).fill('green').stroke('black').stroke_width('1').transform('scale(2)')
 ```
 
-### defs Element (Definitions)
+### defs 元素（定义）
 
 ```python
 from pure.svg import defs, linearGradient, stop, pattern
 
-# Define gradient
+# 定义渐变
 gradient_defs = defs(
     linearGradient(
         stop().offset('0%').stop_color('red'),
@@ -190,55 +190,55 @@ gradient_defs = defs(
     ).id('gradient1').x1('0%').y1('0%').x2('100%').y2('0%')
 )
 
-# Use gradient
+# 使用渐变
 rect_with_gradient = rect() \
     .x('10').y('10').width('100').height('50') \
     .fill('url(#gradient1)')
 ```
 
-### use Element (Reuse)
+### use 元素（重用）
 
 ```python
 from pure.svg import use
 
-# Define reusable element
+# 定义可重用元素
 reusable_shape = g(
     circle().cx('0').cy('0').r('10').fill('blue'),
     rect().x('-5').y('-5').width('10').height('10').fill('red')
 ).id('shape1')
 
-# Reuse elements
+# 重用元素
 use_shape1 = use().href('#shape1').x('50').y('50')
 use_shape2 = use().href('#shape1').x('100').y('100').transform('scale(1.5)')
 ```
 
-## Gradients and Patterns
+## 渐变和图案
 
-### Linear Gradient
+### 线性渐变
 
 ```python
 from pure.svg import linearGradient, stop
 
-# Horizontal gradient
+# 水平渐变
 horizontal_gradient = linearGradient(
     stop().offset('0%').stop_color('red').stop_opacity('1'),
     stop().offset('50%').stop_color('yellow').stop_opacity('0.8'),
     stop().offset('100%').stop_color('blue').stop_opacity('1')
 ).id('horizontal').x1('0%').y1('0%').x2('100%').y2('0%')
 
-# Vertical gradient
+# 垂直渐变
 vertical_gradient = linearGradient(
     stop().offset('0%').stop_color('white'),
     stop().offset('100%').stop_color('black')
 ).id('vertical').x1('0%').y1('0%').x2('0%').y2('100%')
 ```
 
-### Radial Gradient
+### 径向渐变
 
 ```python
 from pure.svg import radialGradient
 
-# Radial gradient
+# 径向渐变
 radial_gradient = radialGradient(
     stop().offset('0%').stop_color('white'),
     stop().offset('70%').stop_color('blue'),
@@ -246,26 +246,26 @@ radial_gradient = radialGradient(
 ).id('radial').cx('50%').cy('50%').r('50%')
 ```
 
-### Pattern
+### 图案
 
 ```python
 from pure.svg import pattern
 
-# Repeating pattern
+# 重复图案
 repeat_pattern = pattern(
     rect().x('0').y('0').width('10').height('10').fill('red'),
     circle().cx('5').cy('5').r('3').fill('blue')
 ).id('pattern1').x('0').y('0').width('20').height('20').patternUnits('userSpaceOnUse')
 ```
 
-## Filter Effects
+## 滤镜效果
 
-### filter Element
+### filter 元素
 
 ```python
 from pure.svg import filter, feGaussianBlur, feOffset, feFlood, feComposite
 
-# Shadow filter
+# 阴影滤镜
 shadow_filter = filter(
     feOffset().in_('SourceGraphic').dx('3').dy('3').result('offset'),
     feGaussianBlur().in_('offset').stdDeviation('2').result('blur'),
@@ -274,27 +274,27 @@ shadow_filter = filter(
     feComposite().in_('SourceGraphic').in2('shadow').operator('over')
 ).id('shadow')
 
-# Blur filter
+# 模糊滤镜
 blur_filter = filter(
     feGaussianBlur().in_('SourceGraphic').stdDeviation('3')
 ).id('blur')
 ```
 
-## Animation
+## 动画
 
-### animate Element
+### animate 元素
 
 ```python
 from pure.svg import animate, animateTransform
 
-# Attribute animation
+# 属性动画
 color_animation = animate() \
     .attributeName('fill') \
     .values('red;blue;red') \
     .dur('3s') \
     .repeatCount('indefinite')
 
-# Transform animation
+# 变换动画
 rotation_animation = animateTransform() \
     .attributeName('transform') \
     .type('rotate') \
@@ -303,60 +303,60 @@ rotation_animation = animateTransform() \
     .repeatCount('indefinite')
 ```
 
-### animateMotion Element
+### animateMotion 元素
 
 ```python
 from pure.svg import animateMotion, mpath
 
-# Path animation
+# 路径动画
 motion_animation = animateMotion(
     mpath().href('#motionPath')
 ).dur('5s').repeatCount('indefinite')
 ```
 
-## Clipping and Masking
+## 裁剪和遮罩
 
-### clipPath Element
+### clipPath 元素
 
 ```python
 from pure.svg import clipPath
 
-# Clipping path
+# 裁剪路径
 clip_path = clipPath(
     circle().cx('50').cy('50').r('40')
 ).id('clip1')
 
-# Apply clipping
+# 应用裁剪
 clipped_rect = rect() \
     .x('0').y('0').width('100').height('100') \
     .fill('blue').clip_path('url(#clip1)')
 ```
 
-### mask Element
+### mask 元素
 
 ```python
 from pure.svg import mask
 
-# Mask
+# 遮罩
 mask_element = mask(
     rect().x('0').y('0').width('100').height('100').fill('white'),
     circle().cx('50').cy('50').r('30').fill('black')
 ).id('mask1')
 
-# Apply mask
+# 应用遮罩
 masked_rect = rect() \
     .x('0').y('0').width('100').height('100') \
     .fill('red').mask('url(#mask1)')
 ```
 
-## Markers
+## 标记
 
-### marker Element
+### marker 元素
 
 ```python
 from pure.svg import marker
 
-# Arrow marker
+# 箭头标记
 arrow_marker = marker(
     path().d('M 0 0 L 10 5 L 0 10 Z').fill('black')
 ).id('arrow') \
@@ -364,21 +364,21 @@ arrow_marker = marker(
   .refX('9').refY('5') \
   .orient('auto').markerUnits('strokeWidth')
 
-# Line with marker
+# 带标记的线
 line_with_marker = line() \
     .x1('10').y1('10').x2('100').y2('100') \
     .stroke('black').stroke_width('2') \
     .marker_end('url(#arrow)')
 ```
 
-## Complete Example
+## 完整示例
 
-### Complex SVG Graphic
+### 复杂 SVG 图形
 
 ```python
 from pure.svg import svg, defs, linearGradient, stop, rect, circle, text, g
 
-# Create complete SVG graphic
+# 创建完整的 SVG 图形
 complete_svg = svg(
     defs(
         linearGradient(
@@ -387,10 +387,10 @@ complete_svg = svg(
         ).id('gradient')
     ),
     
-    # Background
+    # 背景
     rect().x('0').y('0').width('200').height('200').fill('url(#gradient)'),
     
-    # Shape group
+    # 图形组
     g(
         circle().cx('100').cy('100').r('50').fill('white').stroke('#333').stroke_width('3'),
         text('SVG').x('100').y('110').text_anchor('middle').font_family('Arial').font_size('20').fill('#333')
@@ -398,47 +398,47 @@ complete_svg = svg(
     
 ).width('200').height('200').viewBox('0 0 200 200')
 
-# Save SVG
-complete_svg.to_save('example.svg')
+# 保存 SVG
+complete_svg.save('example.svg')
 ```
 
-### Responsive SVG
+### 响应式 SVG
 
 ```python
-# Responsive SVG icon
+# 响应式 SVG 图标
 responsive_icon = svg(
     path().d('M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z') \
           .fill('currentColor')
 ).viewBox('0 0 24 24').class_name('icon')
 ```
 
-## Styles and Attributes
+## 样式和属性
 
-### Common Style Attributes
+### 常用样式属性
 
 ```python
-# Fill and stroke
-element.fill('red')                    # Fill color
-element.stroke('blue')                 # Stroke color
-element.stroke_width('2')              # Stroke width
-element.stroke_dasharray('5,5')        # Dash pattern
-element.stroke_linecap('round')        # Line cap style
-element.stroke_linejoin('round')       # Line join style
+# 填充和描边
+element.fill('red')                    # 填充颜色
+element.stroke('blue')                 # 描边颜色
+element.stroke_width('2')              # 描边宽度
+element.stroke_dasharray('5,5')        # 虚线样式
+element.stroke_linecap('round')        # 线端样式
+element.stroke_linejoin('round')       # 线连接样式
 
-# Opacity
-element.opacity('0.8')                 # Overall opacity
-element.fill_opacity('0.5')            # Fill opacity
-element.stroke_opacity('0.7')          # Stroke opacity
+# 透明度
+element.opacity('0.8')                 # 整体透明度
+element.fill_opacity('0.5')            # 填充透明度
+element.stroke_opacity('0.7')          # 描边透明度
 
-# Transform
-element.transform('translate(10, 20)') # Translation
-element.transform('rotate(45)')        # Rotation
-element.transform('scale(1.5)')        # Scaling
-element.transform('skewX(15)')         # Skewing
+# 变换
+element.transform('translate(10, 20)') # 平移
+element.transform('rotate(45)')        # 旋转
+element.transform('scale(1.5)')        # 缩放
+element.transform('skewX(15)')         # 倾斜
 ```
 
-## Next Steps
+## 下一步
 
-- [Core Classes](/en/api/core) - Learn about SVG class functionality
-- [HTML Tags](/en/api/html-tags) - Learn about HTML tags
-- [Basic Usage](/en/guide/basic-usage) - Learn how to use SVG tags
+- [核心类](/zh/api/core) - 了解 SVG 类的详细功能
+- [HTML 标签](/zh/api/html-tags) - 了解 HTML 标签
+- [基本用法](/zh/guide/basic-usage) - 学习如何使用 SVG 标签

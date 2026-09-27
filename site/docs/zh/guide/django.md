@@ -1,22 +1,22 @@
-# Django Integration
+# Django 集成
 
-Purepy integrates seamlessly with the Django framework as an alternative to traditional Django templates, providing a more powerful component-based development experience.
+Purepy 可以与 Django 框架无缝集成，作为传统 Django 模板的替代方案，提供更强大的组件化开发体验。
 
-## Why Choose This Combination?
+## 为什么选择这个组合？
 
-- **Purepy**: Provides component-based Python template rendering
-- **Django**: Provides complete web framework and ORM
-- **Perfect Complement**: Purepy handles the view layer, Django handles models, routing, and business logic
+- **Purepy**: 提供组件化的 Python 模板渲染
+- **Django**: 提供完整的 Web 框架和 ORM
+- **完美互补**: Purepy 处理视图层，Django 处理模型、路由和业务逻辑
 
-## Quick Start
+## 快速开始
 
-### 1. Install Dependencies
+### 1. 安装依赖
 
 ```bash
 pip install django yonld-purepy
 ```
 
-### 2. Create Django Project
+### 2. 创建 Django 项目
 
 ```bash
 django-admin startproject myproject
@@ -24,7 +24,7 @@ cd myproject
 python manage.py startapp myapp
 ```
 
-### 3. Basic Integration
+### 3. 基本集成
 
 ```python
 # myapp/views.py
@@ -48,13 +48,13 @@ def Layout(props):
 
 def index(request):
     content = div(
-        h1('Welcome to Purepy + Django'),
-        p('This is an application built with Purepy and Django'),
-        a('Learn more').href('/about/')
+        h1('欢迎使用 Purepy + Django'),
+        p('这是一个使用 Purepy 和 Django 构建的应用'),
+        a('了解更多').href('/about/')
     )
     
     page = Layout({
-        'title': 'Home',
+        'title': '首页',
         'content': content
     })
     
@@ -62,12 +62,12 @@ def index(request):
 
 def about(request):
     content = div(
-        h1('About Us'),
-        p('Purepy is a Python template engine inspired by ReactJS.')
+        h1('关于我们'),
+        p('Purepy 是一个受 ReactJS 启发的 Python 模板引擎。')
     )
     
     page = Layout({
-        'title': 'About Us',
+        'title': '关于我们',
         'content': content
     })
     
@@ -96,9 +96,9 @@ urlpatterns = [
 ]
 ```
 
-## Django Model Integration
+## 与 Django 模型集成
 
-### 1. Model Definition
+### 1. 模型定义
 
 ```python
 # myapp/models.py
@@ -119,11 +119,11 @@ class Comment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 ```
 
-### 2. Component-Based Views
+### 2. 组件化视图
 
 ```python
 # myapp/components.py
-from pure.html import html, head, title, body, div, h1, h2, h3, p, a, article, time, ul, li, link
+from pure.html import html, head, title, body, div, h1, h2, h3, p, a, article, time, ul, li
 
 def Layout(props):
     page_title = props.get('title', 'Django + Purepy Blog')
@@ -132,7 +132,7 @@ def Layout(props):
     return html(
         head(
             title(page_title),
-            # Add Bootstrap CSS
+            # 添加 Bootstrap CSS
             link().rel('stylesheet').href('https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css')
         ),
         body(
@@ -155,10 +155,10 @@ def PostCard(post):
 
 def PostList(posts):
     return div(
-        h1('Blog Posts'),
+        h1('博客文章'),
         div(
             *[PostCard(post) for post in posts]
-        ) if posts else p('No posts available')
+        ) if posts else p('暂无文章')
     )
 
 def PostDetail(post, comments):
@@ -171,7 +171,7 @@ def PostDetail(post, comments):
             )
         ),
         div(
-            h3('Comments'),
+            h3('评论'),
             ul(
                 *[li(
                     div(
@@ -182,12 +182,12 @@ def PostDetail(post, comments):
                         )
                     )
                 ) for comment in comments]
-            ) if comments else p('No comments yet')
+            ) if comments else p('暂无评论')
         ).class_name('mt-4')
     )
 ```
 
-### 3. View Functions
+### 3. 视图函数
 
 ```python
 # myapp/views.py
@@ -202,7 +202,7 @@ def post_list(request):
     content = PostList(posts)
     
     page = Layout({
-        'title': 'Blog Home',
+        'title': '博客首页',
         'content': content
     })
     
@@ -222,9 +222,9 @@ def post_detail(request, post_id):
     return HttpResponse(str(page))
 ```
 
-## Form Handling
+## 表单处理
 
-### 1. Django Forms
+### 1. Django 表单
 
 ```python
 # myapp/forms.py
@@ -237,7 +237,7 @@ class CommentForm(forms.ModelForm):
         fields = ['author', 'content']
 ```
 
-### 2. Purepy Form Components
+### 2. Purepy 表单组件
 
 ```python
 # myapp/components.py
@@ -246,7 +246,7 @@ from pure.html import form, div, label, input, textarea, button
 def CommentFormComponent(form_data=None, errors=None):
     return form(
         div(
-            label('Author').for_('id_author'),
+            label('作者').for_('id_author'),
             input()
                 .type('text')
                 .name('author')
@@ -257,7 +257,7 @@ def CommentFormComponent(form_data=None, errors=None):
             div(errors.get('author', '') if errors else '').class_name('text-danger')
         ).class_name('mb-3'),
         div(
-            label('Comment Content').for_('id_content'),
+            label('评论内容').for_('id_content'),
             textarea(form_data.get('content', '') if form_data else '')
                 .name('content')
                 .id('id_content')
@@ -266,11 +266,11 @@ def CommentFormComponent(form_data=None, errors=None):
                 .required(),
             div(errors.get('content', '') if errors else '').class_name('text-danger')
         ).class_name('mb-3'),
-        button('Submit Comment').type('submit').class_name('btn btn-primary')
+        button('提交评论').type('submit').class_name('btn btn-primary')
     ).method('POST')
 ```
 
-### 3. Form Handling Views
+### 3. 表单处理视图
 
 ```python
 # myapp/views.py
@@ -288,10 +288,10 @@ def add_comment(request, post_id):
             comment.save()
             return redirect('post_detail', post_id=post.id)
         else:
-            # Display form errors
+            # 显示表单错误
             content = div(
                 PostDetail(post, post.comment_set.all()),
-                h3('Add Comment'),
+                h3('添加评论'),
                 CommentFormComponent(
                     form_data=request.POST,
                     errors=form.errors
@@ -300,51 +300,51 @@ def add_comment(request, post_id):
     else:
         content = div(
             PostDetail(post, post.comment_set.all()),
-            h3('Add Comment'),
+            h3('添加评论'),
             CommentFormComponent()
         )
     
     page = Layout({
-        'title': f'Comment - {post.title}',
+        'title': f'评论 - {post.title}',
         'content': content
     })
     
     return HttpResponse(str(page))
 ```
 
-## Middleware Integration
+## 中间件集成
 
-### 1. Custom Middleware
+### 1. 自定义中间件
 
 ```python
 # myapp/middleware.py
 from django.utils.deprecation import MiddlewareMixin
-from pure.html import div, h1, p
+from pure.html import div, p
 
 class PurepyErrorMiddleware(MiddlewareMixin):
     def process_exception(self, request, exception):
         if settings.DEBUG:
-            return None  # Let Django handle exceptions in debug mode
+            return None  # 让 Django 处理调试模式下的异常
         
-        # Use Purepy to render error pages in production
+        # 生产环境下使用 Purepy 渲染错误页面
         from .components import Layout
         
         content = div(
-            h1('Server Error'),
-            p('Sorry, the server encountered an error. Please try again later.')
+            h1('服务器错误'),
+            p('抱歉，服务器遇到了一个错误。请稍后再试。')
         )
         
         page = Layout({
-            'title': 'Server Error',
+            'title': '服务器错误',
             'content': content
         })
         
         return HttpResponse(str(page), status=500)
 ```
 
-## Management Commands
+## 管理命令
 
-### 1. Generate Static Pages
+### 1. 生成静态页面
 
 ```python
 # myapp/management/commands/generate_static.py
@@ -355,7 +355,7 @@ from myapp.models import Post
 from myapp.components import Layout, PostDetail
 
 class Command(BaseCommand):
-    help = 'Generate static HTML pages'
+    help = '生成静态 HTML 页面'
     
     def handle(self, *args, **options):
         static_dir = os.path.join(settings.BASE_DIR, 'static_pages')
@@ -377,13 +377,13 @@ class Command(BaseCommand):
                 f.write(str(page))
             
             self.stdout.write(
-                self.style.SUCCESS(f'Generated page: {filename}')
+                self.style.SUCCESS(f'生成页面: {filename}')
             )
 ```
 
-## Best Practices
+## 最佳实践
 
-### 1. Component Organization
+### 1. 组件组织
 
 ```python
 # myapp/
@@ -398,15 +398,15 @@ class Command(BaseCommand):
 #     api.py
 ```
 
-### 2. Caching Optimization
+### 2. 缓存优化
 
 ```python
 from django.core.cache import cache
 from django.views.decorators.cache import cache_page
 
-@cache_page(60 * 15)  # Cache for 15 minutes
+@cache_page(60 * 15)  # 缓存 15 分钟
 def cached_post_list(request):
-    # View implementation
+    # 视图实现
     pass
 
 def get_cached_component(cache_key, component_func, *args, **kwargs):
@@ -414,11 +414,11 @@ def get_cached_component(cache_key, component_func, *args, **kwargs):
     if cached_html is None:
         component = component_func(*args, **kwargs)
         cached_html = str(component)
-        cache.set(cache_key, cached_html, 60 * 30)  # Cache for 30 minutes
+        cache.set(cache_key, cached_html, 60 * 30)  # 缓存 30 分钟
     return cached_html
 ```
 
-### 3. Internationalization Support
+### 3. 国际化支持
 
 ```python
 from django.utils.translation import gettext as _
@@ -430,8 +430,8 @@ def MultilingualComponent(props):
     )
 ```
 
-## Next Steps
+## 下一步
 
-- [Flask Integration](/en/guide/flask) - Learn how to work with Flask
-- [Components](/en/guide/components) - Deep dive into component development
-- [API Documentation](/en/api/) - View complete API reference
+- [Flask 集成](/zh/guide/flask) - 了解如何与 Flask 配合使用
+- [组件](/zh/guide/components) - 深入学习组件开发
+- [API 文档](/zh/api/) - 查看完整的 API 参考

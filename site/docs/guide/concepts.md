@@ -1,139 +1,140 @@
-# 基本概念
+# Core Concepts
 
-本章将介绍 Purepy 的核心概念，帮助你更好地理解和使用这个模板引擎。
+This chapter introduces the core concepts of Purepy to help you better understand and use this template engine.
 
-## 元素 (Elements)
+## Elements
 
-在 Purepy 中，每个 HTML 标签都是一个函数，调用这些函数会创建元素对象。
+In Purepy, every HTML tag is a function, and calling these functions creates element objects.
 
-### 创建元素
+### Creating Elements
 
 ```python
 from pure.html import div, h1, p
 
-# 创建一个 div 元素
+# Create a div element
 container = div()
 
-# 创建带内容的元素
-title = h1('页面标题')
-content = p('这是段落内容')
+# Create elements with content
+title = h1('Page Title')
+content = p('This is paragraph content')
 ```
 
-### 元素的结构
+### Element Structure
 
-每个元素都有以下组成部分：
+Each element consists of the following parts:
 
-- **标签名**: HTML 标签的名称（如 'div', 'h1', 'p'）
-- **属性**: 元素的属性（如 class, id, data-* 等）
-- **子元素**: 嵌套在元素内部的其他元素或文本
+- **Tag Name**: The name of the HTML tag (like 'div', 'h1', 'p')
+- **Attributes**: Element attributes (like class, id, data-* etc.)
+- **Children**: Other elements or text nested inside the element
 
 ```python
-# 元素结构示例
-element = div(                    # 标签名: div
-    h1('标题'),                   # 子元素: h1
-    p('内容')                     # 子元素: p
-).class_name('container')         # 属性: class="container"
+# Element structure example
+element = div(                    # Tag name: div
+    h1('Title'),                  # Child element: h1
+    p('Content')                  # Child element: p
+).class_name('container')         # Attribute: class="container"
 ```
 
-## 属性 (Attributes)
+## Attributes
 
-属性用于配置元素的行为和外观。
+Attributes are used to configure element behavior and appearance.
 
-### 设置属性
+### Setting Attributes
 
 ```python
 from pure.html import div, input
 
-# 使用方法链设置属性
-element = div('内容') \
+# Use method chaining to set attributes
+element = div('Content') \
     .class_name('container') \
     .id('main') \
     .data_value('123')
 
-# 表单元素属性
+# Form element attributes
 field = input() \
     .type('text') \
     .name('username') \
-    .placeholder('请输入用户名') \
+    .placeholder('Enter username') \
     .required(True)
 ```
 
-### 特殊属性处理
+### Special Attribute Handling
 
-#### class 属性
+#### class Attribute
 
-由于 `class` 是 Python 关键字，使用 `class_name` 方法：
-
-```python
-div('内容').class_name('btn btn-primary')
-```
-
-#### data 和 aria 属性
-
-使用下划线替代连字符：
+Since `class` is a Python keyword, use the `class_name` method:
 
 ```python
-div('内容') \
-    .data_id('123') \          # data-id="123"
-    .data_type('card') \       # data-type="card"
-    .aria_label('按钮')        # aria-label="按钮"
+div('Content').class_name('btn btn-primary')
 ```
 
-#### 布尔属性
+#### data and aria Attributes
+
+Use underscores instead of hyphens:
 
 ```python
-input() \
-    .type('checkbox') \
-    .checked(True) \           # checked="checked"
-    .disabled(False)           # 不会添加 disabled 属性
+(
+    div('Content')
+    .data_id('123')          # data-id="123"
+    .data_type('card')       # data-type="card"
+    .aria_label('Button')    # aria-label="Button"
+)
 ```
 
-## 子元素 (Children)
+#### Boolean Attributes
 
-元素可以包含其他元素或文本内容。
+```python
+# checked=True renders checked="checked";
+# disabled=False omits the attribute entirely
+input().type('checkbox').checked(True).disabled(False)
+```
 
-### 添加子元素
+## Children
+
+Elements can contain other elements or text content.
+
+### Adding Children
 
 ```python
 from pure.html import div, h1, p, ul, li
 
-# 单个子元素
-container = div(h1('标题'))
+# Single child element
+container = div(h1('Title'))
 
-# 多个子元素
+# Multiple child elements
 container = div(
-    h1('标题'),
-    p('内容'),
+    h1('Title'),
+    p('Content'),
     ul(
-        li('项目 1'),
-        li('项目 2'),
-        li('项目 3')
+        li('Item 1'),
+        li('Item 2'),
+        li('Item 3')
     )
 )
 ```
 
-### 动态子元素
+### Dynamic Children
 
 ```python
-# 使用列表推导
-items = ['苹果', '香蕉', '橙子']
+# Using list comprehensions
+items = ['Apple', 'Banana', 'Orange']
 list_element = ul(
     *[li(item) for item in items]
 )
 
-# 条件子元素
+# Conditional children
 is_logged_in = True
 header = div(
-    h1('网站标题'),
-    p('欢迎回来！') if is_logged_in else p('请登录')
+    h1('Website Title'),
+    p('Welcome back!') if is_logged_in else p('Please log in')
 )
 ```
 
-## 组件 (Components)
+## Components
 
-组件是可重用的函数，返回元素结构。
+Components are reusable functions that return element structures.
 
-### 基本组件
+### Basic Components
 
 ```python
 def Card(props):
@@ -145,14 +146,14 @@ def Card(props):
         p(content).class_name('card-content')
     ).class_name('card')
 
-# 使用组件
+# Using components
 my_card = Card({
-    'title': '卡片标题',
-    'content': '卡片内容'
+    'title': 'Card Title',
+    'content': 'Card Content'
 })
 ```
 
-### 组件组合
+### Component Composition
 
 ```python
 def Header(props):
@@ -177,25 +178,25 @@ def Layout(props):
     ).class_name('layout')
 ```
 
-## 属性传递 (Props)
+## Props
 
-Props 是传递给组件的数据。
+Props are data passed to components.
 
-### Props 的类型
+### Props Types
 
 ```python
 def Button(props):
-    # 字符串属性
-    text = props.get('text', '按钮')
+    # String props
+    text = props.get('text', 'Button')
     
-    # 布尔属性
+    # Boolean props
     is_primary = props.get('primary', False)
     is_disabled = props.get('disabled', False)
     
-    # 函数属性（虽然在 HTML 中不常用）
+    # Function props (though not commonly used in HTML)
     on_click = props.get('onClick', '')
     
-    # 对象属性
+    # Object props
     style_props = props.get('style', {})
     
     return button(text) \
@@ -204,18 +205,18 @@ def Button(props):
         .onclick(on_click)
 ```
 
-### 默认 Props
+### Default Props
 
 ```python
 def Card(props):
-    # 设置默认值
+    # Set default values
     defaults = {
-        'title': '默认标题',
-        'content': '默认内容',
+        'title': 'Default Title',
+        'content': 'Default Content',
         'variant': 'default'
     }
     
-    # 合并 props 和默认值
+    # Merge props with defaults
     merged_props = {**defaults, **props}
     
     return div(
@@ -224,43 +225,43 @@ def Card(props):
     ).class_name(f'card card-{merged_props["variant"]}')
 ```
 
-## 条件渲染
+## Conditional Rendering
 
-根据条件显示不同的内容。
+Render different content based on conditions.
 
-### 简单条件
+### Simple Conditions
 
 ```python
 def UserGreeting(props):
     user = props.get('user')
     
     return div(
-        h1('欢迎回来！') if user else h1('请登录'),
-        p(f'你好，{user.name}！') if user else None
+        h1('Welcome back!') if user else h1('Please log in'),
+        p(f'Hello, {user.name}!') if user else None
     )
 ```
 
-### 复杂条件
+### Complex Conditions
 
 ```python
 def StatusMessage(props):
     status = props.get('status', 'loading')
     
     if status == 'loading':
-        return div('加载中...').class_name('loading')
+        return div('Loading...').class_name('loading')
     elif status == 'error':
-        return div('发生错误').class_name('error')
+        return div('An error occurred').class_name('error')
     elif status == 'success':
-        return div('操作成功').class_name('success')
+        return div('Operation successful').class_name('success')
     else:
-        return div('未知状态').class_name('unknown')
+        return div('Unknown status').class_name('unknown')
 ```
 
-## 列表渲染
+## List Rendering
 
-渲染动态列表内容。
+Render dynamic list content.
 
-### 基本列表
+### Basic Lists
 
 ```python
 def TodoList(props):
@@ -271,7 +272,7 @@ def TodoList(props):
     ).class_name('todo-list')
 ```
 
-### 带键的列表
+### Lists with Keys
 
 ```python
 def UserList(props):
@@ -288,11 +289,11 @@ def UserList(props):
     ).class_name('user-list')
 ```
 
-## 样式处理
+## Style Handling
 
-Purepy 提供了多种处理样式的方式。
+Purepy provides multiple ways to handle styles.
 
-### 内联样式
+### Inline Styles
 
 ```python
 from pure.sty import sty
@@ -303,59 +304,59 @@ styles = sty({
     'background-color': '#f0f0f0'
 })
 
-div('内容').style(styles)
+div('Content').style(styles)
 ```
 
-### CSS 类
+### CSS Classes
 
 ```python
 from pure.clx import clx
 
-# 静态类
-div('内容').class_name('btn btn-primary')
+# Static classes
+div('Content').class_name('btn btn-primary')
 
-# 动态类
+# Dynamic classes
 is_active = True
 classes = clx('btn', {'active': is_active, 'disabled': False})
-div('内容').class_name(classes)
+div('Content').class_name(classes)
 ```
 
-## 事件处理
+## Event Handling
 
-虽然 Purepy 主要用于生成静态 HTML，但你仍然可以添加事件属性：
+While Purepy is primarily used for generating static HTML, you can still add event attributes:
 
 ```python
 def InteractiveButton(props):
-    return button(props.get('text', '点击')) \
+    return button(props.get('text', 'Click')) \
         .onclick(props.get('onClick', '')) \
         .class_name('interactive-btn')
 
-# 使用
+# Usage
 btn = InteractiveButton({
-    'text': '点击我',
-    'onClick': 'alert("按钮被点击了！")'
+    'text': 'Click me',
+    'onClick': 'alert("Button clicked!")'
 })
 ```
 
-## 生命周期
+## Lifecycle
 
-在 Purepy 中，组件的"生命周期"主要体现在数据处理和渲染过程中：
+In Purepy, component "lifecycle" is mainly reflected in data processing and rendering:
 
-### 数据准备
+### Data Preparation
 
 ```python
 def DataCard(props):
-    # 1. 数据准备阶段
+    # 1. Data preparation phase
     raw_data = props.get('data', {})
     
-    # 2. 数据处理
+    # 2. Data processing
     processed_data = {
         'title': raw_data.get('title', '').upper(),
-        'content': raw_data.get('content', '')[:100],  # 截取前100字符
+        'content': raw_data.get('content', '')[:100],  # First 100 characters
         'date': format_date(raw_data.get('date'))
     }
     
-    # 3. 渲染阶段
+    # 3. Rendering phase
     return div(
         h2(processed_data['title']),
         p(processed_data['content']),
@@ -363,34 +364,34 @@ def DataCard(props):
     ).class_name('data-card')
 ```
 
-## 错误处理
+## Error Handling
 
-处理可能出现的错误情况：
+Handle potential error conditions:
 
 ```python
 def SafeCard(props):
     try:
-        title = props['title']  # 必需的属性
+        title = props['title']  # Required prop
         content = props.get('content', '')
         
         return div(
             h2(title),
-            p(content) if content else p('暂无内容')
+            p(content) if content else p('No content available')
         ).class_name('card')
     
     except KeyError:
         return div(
-            p('错误：缺少必需的 title 属性')
+            p('Error: Missing required title prop')
         ).class_name('error-card')
 ```
 
-## 性能考虑
+## Performance Considerations
 
-### 避免重复计算
+### Avoid Repeated Calculations
 
 ```python
 def ExpensiveComponent(props):
-    # 缓存计算结果
+    # Cache calculation results
     if not hasattr(ExpensiveComponent, '_cache'):
         ExpensiveComponent._cache = {}
     
@@ -398,19 +399,19 @@ def ExpensiveComponent(props):
     if cache_key in ExpensiveComponent._cache:
         return ExpensiveComponent._cache[cache_key]
     
-    # 执行昂贵的计算
+    # Perform expensive calculation
     result = div(
-        # ... 复杂的渲染逻辑
+        # ... complex rendering logic
     )
     
     ExpensiveComponent._cache[cache_key] = result
     return result
 ```
 
-## 下一步
+## Next Steps
 
-现在你已经了解了 Purepy 的基本概念，可以继续学习：
+Now that you understand the core concepts of Purepy, you can continue learning:
 
-- [基本用法](/guide/basic-usage) - 详细的语法说明
-- [组件](/guide/components) - 深入学习组件开发
-- [属性](/guide/props) - 掌握属性系统
+- [Basic Usage](/guide/basic-usage) - Detailed syntax explanation
+- [Components](/guide/components) - Deep dive into component development
+- [Props](/guide/props) - Master the props system

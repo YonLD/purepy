@@ -1,89 +1,89 @@
-# Basic Usage
+# 基本用法
 
-This guide introduces the basic usage and syntax of Purepy.
+本指南介绍 Purepy 的基本用法和语法。
 
-## Creating Elements
+## 创建元素
 
-### 1. Basic Elements
+### 1. 基本元素
 
-Create HTML elements using function calls:
+使用函数调用创建 HTML 元素：
 
 ```python
 from pure.html import div, h1, p
 
-# Create simple elements
+# 创建简单元素
 div('Hello World')
-h1('Title')
-p('Paragraph content')
+h1('标题')
+p('段落内容')
 ```
 
-### 2. Setting Attributes
+### 2. 设置属性
 
-Use method chaining to set element attributes:
+使用链式调用设置元素属性：
 
 ```python
 from pure.html import div
 
-div('Content') \
+div('内容') \
     .class_name('container') \
     .id('main') \
     .data_key('primary') \
     .print()
 ```
 
-## Important Usage Notes
+## 重要用法说明
 
-### 1. class_name Method
+### 1. class_name 方法
 
-Since `class` is a Python keyword, Purepy uses the `class_name` method to set CSS classes:
+由于 `class` 是 Python 的关键字，Purepy 使用 `class_name` 方法来设置 CSS 类：
 
 ```python
 from pure.html import div
 
-# Set CSS class
-div('Content').class_name('container').print()
+# 设置 CSS 类
+div('内容').class_name('container').print()
 ```
 
-### 2. Attribute Naming Rules
+### 2. 属性命名规则
 
-Since `-` has special meaning in Python, attributes like `data-id` need to be written as `data_id`:
+由于 `-` 在 Python 中有特殊含义，类似 `data-id` 这种属性需要改成 `data_id`：
 
 ```python
 from pure.html import div
 
-div('Content') \
+div('内容') \
     .data_id('123') \
     .data_type('card') \
-    .aria_label('Button') \
+    .aria_label('按钮') \
     .print()
 ```
 
-Output:
+输出：
 ```html
-<div data-id="123" data-type="card" aria-label="Button">Content</div>
+<div data-id="123" data-type="card" aria-label="按钮">内容</div>
 ```
 
-### 3. Style Handling
+### 3. 样式处理
 
-Use dictionaries to set styles:
+可以使用字典来设置样式：
 
 ```python
 from pure.html import div
 from pure.sty import sty
 
-# Use sty function to handle styles
+# 使用字典设置样式
 styles = sty({
     'color': 'red',
     'font-size': '16px',
     'background-color': '#f0f0f0'
 })
 
-div('Content').style(styles).print()
+div('内容').style(styles).print()
 ```
 
-### 4. Class Name Handling
+### 4. 类名处理
 
-Use clx function to handle conditional class names:
+使用 clx 函数处理条件类名：
 
 ```python
 from pure.html import div
@@ -92,25 +92,25 @@ from pure.clx import clx
 is_active = True
 is_large = False
 
-# Conditional classes
+# 条件类名
 classes = clx('btn', {'active': is_active, 'large': is_large})
-div('Button').class_name(classes).print()
+div('按钮').class_name(classes).print()
 ```
 
-## Nested Elements
+## 嵌套元素
 
-### 1. Basic Nesting
+### 1. 基本嵌套
 
 ```python
 from pure.html import div, h1, p
 
 div(
-    h1('Title'),
-    p('Content')
+    h1('标题'),
+    p('内容')
 ).print()
 ```
 
-### 2. Complex Nesting
+### 2. 复杂嵌套
 
 ```python
 from pure.html import div, header, nav, ul, li, a, main, section, h2, p
@@ -119,24 +119,24 @@ div(
     header(
         nav(
             ul(
-                li(a('Home').href('/')),
-                li(a('About').href('/about')),
-                li(a('Contact').href('/contact'))
+                li(a('首页').href('/')),
+                li(a('关于').href('/about')),
+                li(a('联系').href('/contact'))
             )
         )
     ),
     main(
         section(
-            h2('Welcome'),
-            p('This is the main content area.')
+            h2('欢迎'),
+            p('这是主要内容区域。')
         )
     )
 ).class_name('layout').print()
 ```
 
-## Conditional Rendering
+## 条件渲染
 
-### 1. Using Conditional Expressions
+### 1. 使用条件表达式
 
 ```python
 from pure.html import div, p
@@ -144,17 +144,17 @@ from pure.html import div, p
 is_logged_in = True
 
 div(
-    p('Welcome back!') if is_logged_in else p('Please log in'),
-    p('This is public content')
+    p('欢迎回来！') if is_logged_in else p('请登录'),
+    p('这是公共内容')
 ).print()
 ```
 
-### 2. Using List Comprehensions
+### 2. 使用列表推导
 
 ```python
 from pure.html import div, ul, li
 
-items = ['Apple', 'Banana', 'Orange']
+items = ['苹果', '香蕉', '橙子']
 
 div(
     ul(
@@ -163,9 +163,9 @@ div(
 ).print()
 ```
 
-## Output Methods
+## 输出方法
 
-### 1. Convert to String
+### 1. 转换为字符串
 
 ```python
 from pure.html import div
@@ -175,7 +175,7 @@ html_string = str(element)
 print(html_string)
 ```
 
-### 2. Direct Print
+### 2. 直接打印
 
 ```python
 from pure.html import div
@@ -183,29 +183,28 @@ from pure.html import div
 div('Hello World').print()
 ```
 
-### 3. Save to File
+### 3. 保存到文件
 
 ```python
 from pure.html import html, head, title, body, div
 
 page = html(
-    head(title('My Page')),
+    head(title('我的页面')),
     body(div('Hello World'))
 )
 
-# Save to file using save method
 page.save('output.html')
 ```
 
-## Style Processing
+## 样式处理
 
-### 1. Using sty Function
+### 1. 使用 sty 函数
 
 ```python
 from pure.html import div
 from pure.sty import sty
 
-# Use sty function to handle styles
+# 用 sty 函数处理样式
 styles = sty({
     'color': 'red',
     'font-size': '16px',
@@ -215,13 +214,13 @@ styles = sty({
 div('Content').style(styles).print()
 ```
 
-### 2. CSS Classes
+### 2. CSS 类名
 
 ```python
 from pure.html import div
 from pure.clx import clx
 
-# Use clx function to handle class names
+# 用 clx 函数处理类名
 is_active = True
 is_large = False
 
@@ -229,11 +228,11 @@ classes = clx('container', {'active': is_active, 'large': is_large})
 div('Content').class_name(classes).print()
 ```
 
-## Best Practices
+## 最佳实践
 
-### 1. Component-based
+### 1. 组件化
 
-Encapsulate repetitive code into functions:
+将重复的代码封装成函数：
 
 ```python
 from pure.html import div, h2, p, a
@@ -246,20 +245,20 @@ def Card(props):
     return div(
         h2(title),
         p(content),
-        a('Learn More').href(link)
+        a('了解更多').href(link)
     ).class_name('card')
 
-# Use component
+# 使用组件
 Card({
-    'title': 'Title',
-    'content': 'Content',
+    'title': '标题',
+    'content': '内容',
     'link': '/more'
 }).print()
 ```
 
-### 2. Data-driven
+### 2. 数据驱动
 
-Use data to generate content:
+使用数据来生成内容：
 
 ```python
 from pure.html import div, ul, li
@@ -271,12 +270,12 @@ def ItemList(items):
         )
     ).class_name('item-list')
 
-# Usage
-items = ['Item 1', 'Item 2', 'Item 3']
+# 使用
+items = ['项目1', '项目2', '项目3']
 ItemList(items).print()
 ```
 
-## Next Steps
+## 下一步
 
-- [API Reference](/api/) - Learn about all available tags and methods
-- [TailwindCSS Integration](/guide/tailwindcss) - Style your components with TailwindCSS
+- [组件](/zh/guide/components) - 学习如何创建和使用组件
+- [API 参考](/zh/api/) - 了解所有可用的标签和方法

@@ -1,536 +1,536 @@
-# HTML 标签
+# HTML Tags
 
-Purepy 提供了完整的 HTML5 标签支持。所有标签都可以通过 `pure.html` 模块导入。
+Purepy provides complete HTML5 tag support. All tags can be imported from the `pure.html` module.
 
-## 文档结构标签
+## Document Structure Tags
 
-### 根元素
+### Root Element
 
 ```python
 from pure.html import html
 
-# HTML 文档根元素
+# HTML document root element
 html_doc = html(
-    # 文档内容
-).lang('zh-CN')
+    # Document content
+).lang('en')
 ```
 
-### 文档头部
+### Document Head
 
 ```python
 from pure.html import head, title, meta, link, style, script
 
-# 文档头部
+# Document head
 head_section = head(
     meta().charset('UTF-8'),
     meta().name('viewport').content('width=device-width, initial-scale=1.0'),
-    title('页面标题'),
+    title('Page Title'),
     link().rel('stylesheet').href('styles.css'),
     style('body { margin: 0; }'),
     script().src('script.js')
 )
 ```
 
-### 文档主体
+### Document Body
 
 ```python
 from pure.html import body
 
-# 文档主体
+# Document body
 body_section = body(
-    # 页面内容
+    # Page content
 ).class_name('main-body')
 ```
 
-## 内容分区标签
+## Content Sectioning Tags
 
-### 语义化容器
+### Semantic Containers
 
 ```python
 from pure.html import header, nav, main, section, article, aside, footer
 
-# 页面头部
+# Page header
 page_header = header(
     nav(
-        # 导航内容
+        # Navigation content
     )
 ).class_name('page-header')
 
-# 主要内容
+# Main content
 main_content = main(
     section(
         article(
-            # 文章内容
+            # Article content
         )
     ),
     aside(
-        # 侧边栏内容
+        # Sidebar content
     )
 )
 
-# 页面底部
+# Page footer
 page_footer = footer(
-    # 底部内容
+    # Footer content
 ).class_name('page-footer')
 ```
 
-### 通用容器
+### Generic Containers
 
 ```python
 from pure.html import div, span
 
-# 块级容器
+# Block container
 container = div(
-    # 内容
+    # Content
 ).class_name('container')
 
-# 内联容器
-inline_container = span('内联内容').class_name('highlight')
+# Inline container
+inline_container = span('Inline content').class_name('highlight')
 ```
 
-## 文本内容标签
+## Text Content Tags
 
-### 标题
+### Headings
 
 ```python
 from pure.html import h1, h2, h3, h4, h5, h6
 
-# 各级标题
-h1('一级标题').class_name('main-title')
-h2('二级标题').class_name('section-title')
-h3('三级标题')
-h4('四级标题')
-h5('五级标题')
-h6('六级标题')
+# Various heading levels
+h1('Main Title').class_name('main-title')
+h2('Section Title').class_name('section-title')
+h3('Subsection Title')
+h4('Fourth Level Title')
+h5('Fifth Level Title')
+h6('Sixth Level Title')
 ```
 
-### 段落和文本
+### Paragraphs and Text
 
 ```python
 from pure.html import p, br, hr
 
-# 段落
-paragraph = p('这是一个段落。').class_name('content-paragraph')
+# Paragraph
+paragraph = p('This is a paragraph.').class_name('content-paragraph')
 
-# 换行
+# Line break
 line_break = br()
 
-# 水平分割线
+# Horizontal rule
 horizontal_rule = hr().class_name('section-divider')
 ```
 
-### 文本格式化
+### Text Formatting
 
 ```python
-from pure.html import strong, em, mark, small, del_, ins, sub, sup
+from pure.html import strong, em, mark, small, Del, ins, sub, sup
 
-# 强调文本
-strong_text = strong('重要文本')
-emphasized_text = em('强调文本')
+# Emphasized text
+strong_text = strong('Important text')
+emphasized_text = em('Emphasized text')
 
-# 标记文本
-marked_text = mark('高亮文本')
+# Marked text
+marked_text = mark('Highlighted text')
 
-# 小号文本
-small_text = small('小号文本')
+# Small text
+small_text = small('Small text')
 
-# 删除和插入
-deleted_text = del_('删除的文本')
-inserted_text = ins('插入的文本')
+# Deleted and inserted
+deleted_text = Del('Deleted text')
+inserted_text = ins('Inserted text')
 
-# 上标和下标
-superscript = sup('上标')
-subscript = sub('下标')
+# Superscript and subscript
+superscript = sup('Superscript')
+subscript = sub('Subscript')
 ```
 
-### 引用
+### Quotes
 
 ```python
 from pure.html import blockquote, q, cite
 
-# 块引用
+# Block quote
 block_quote = blockquote(
-    p('这是一个块引用。'),
-    cite('引用来源')
+    p('This is a block quote.'),
+    cite('Quote source')
 ).class_name('quote')
 
-# 内联引用
-inline_quote = q('这是一个内联引用')
+# Inline quote
+inline_quote = q('This is an inline quote')
 ```
 
-### 代码
+### Code
 
 ```python
 from pure.html import code, pre, kbd, samp, var
 
-# 内联代码
+# Inline code
 inline_code = code('print("Hello World")')
 
-# 代码块
+# Code block
 code_block = pre(
     code('def hello():\n    print("Hello World")')
 ).class_name('code-block')
 
-# 键盘输入
+# Keyboard input
 keyboard_input = kbd('Ctrl+C')
 
-# 示例输出
+# Sample output
 sample_output = samp('Hello World')
 
-# 变量
+# Variable
 variable = var('x')
 ```
 
-## 列表标签
+## List Tags
 
-### 无序列表
+### Unordered Lists
 
 ```python
 from pure.html import ul, li
 
-# 无序列表
+# Unordered list
 unordered_list = ul(
-    li('项目 1'),
-    li('项目 2'),
-    li('项目 3')
+    li('Item 1'),
+    li('Item 2'),
+    li('Item 3')
 ).class_name('menu-list')
 ```
 
-### 有序列表
+### Ordered Lists
 
 ```python
 from pure.html import ol
 
-# 有序列表
+# Ordered list
 ordered_list = ol(
-    li('第一步'),
-    li('第二步'),
-    li('第三步')
+    li('First step'),
+    li('Second step'),
+    li('Third step')
 ).type('1').start('1')
 ```
 
-### 描述列表
+### Description Lists
 
 ```python
 from pure.html import dl, dt, dd
 
-# 描述列表
+# Description list
 description_list = dl(
-    dt('术语 1'),
-    dd('术语 1 的描述'),
-    dt('术语 2'),
-    dd('术语 2 的描述')
+    dt('Term 1'),
+    dd('Description of term 1'),
+    dt('Term 2'),
+    dd('Description of term 2')
 )
 ```
 
-## 链接和媒体标签
+## Link and Media Tags
 
-### 链接
+### Links
 
 ```python
 from pure.html import a
 
-# 基本链接
-basic_link = a('链接文本').href('https://example.com')
+# Basic link
+basic_link = a('Link text').href('https://example.com')
 
-# 带目标的链接
-external_link = a('外部链接').href('https://example.com').target('_blank').rel('noopener')
+# Link with target
+external_link = a('External link').href('https://example.com').target('_blank').rel('noopener')
 
-# 邮件链接
-email_link = a('发送邮件').href('mailto:example@example.com')
+# Email link
+email_link = a('Send email').href('mailto:example@example.com')
 
-# 电话链接
-phone_link = a('拨打电话').href('tel:+1234567890')
+# Phone link
+phone_link = a('Call phone').href('tel:+1234567890')
 ```
 
-### 图片
+### Images
 
 ```python
 from pure.html import img, figure, figcaption
 
-# 基本图片
-basic_image = img().src('image.jpg').alt('图片描述').width('300').height('200')
+# Basic image
+basic_image = img().src('image.jpg').alt('Image description').width('300').height('200')
 
-# 响应式图片
-responsive_image = img().src('image.jpg').alt('图片描述').class_name('responsive-img')
+# Responsive image
+responsive_image = img().src('image.jpg').alt('Image description').class_name('responsive-img')
 
-# 带说明的图片
+# Image with caption
 figure_with_caption = figure(
-    img().src('image.jpg').alt('图片描述'),
-    figcaption('图片说明')
+    img().src('image.jpg').alt('Image description'),
+    figcaption('Image caption')
 )
 ```
 
-### 音频和视频
+### Audio and Video
 
 ```python
 from pure.html import audio, video, source, track
 
-# 音频
+# Audio
 audio_element = audio(
     source().src('audio.mp3').type('audio/mpeg'),
     source().src('audio.ogg').type('audio/ogg')
 ).controls(True).preload('metadata')
 
-# 视频
+# Video
 video_element = video(
     source().src('video.mp4').type('video/mp4'),
     source().src('video.webm').type('video/webm'),
-    track().src('subtitles.vtt').kind('subtitles').srclang('zh').label('中文字幕')
+    track().src('subtitles.vtt').kind('subtitles').srclang('en').label('English subtitles')
 ).controls(True).width('640').height('360').poster('poster.jpg')
 ```
 
-## 表格标签
+## Table Tags
 
-### 基本表格
+### Basic Table
 
 ```python
 from pure.html import table, thead, tbody, tfoot, tr, th, td, caption
 
-# 完整表格
+# Complete table
 complete_table = table(
-    caption('表格标题'),
+    caption('Table title'),
     thead(
         tr(
-            th('列 1'),
-            th('列 2'),
-            th('列 3')
+            th('Column 1'),
+            th('Column 2'),
+            th('Column 3')
         )
     ),
     tbody(
         tr(
-            td('数据 1'),
-            td('数据 2'),
-            td('数据 3')
+            td('Data 1'),
+            td('Data 2'),
+            td('Data 3')
         ),
         tr(
-            td('数据 4'),
-            td('数据 5'),
-            td('数据 6')
+            td('Data 4'),
+            td('Data 5'),
+            td('Data 6')
         )
     ),
     tfoot(
         tr(
-            td('总计').colspan('2'),
-            td('合计值')
+            td('Total').colspan('2'),
+            td('Sum value')
         )
     )
 ).class_name('data-table')
 ```
 
-### 表格分组
+### Table Grouping
 
 ```python
 from pure.html import colgroup, col
 
-# 列分组
+# Column grouping
 table_with_colgroup = table(
     colgroup(
         col().span('2').class_name('group1'),
         col().class_name('group2')
     ),
-    # 表格内容...
+    # Table content...
 )
 ```
 
-## 表单标签
+## Form Tags
 
-### 表单容器
+### Form Container
 
 ```python
 from pure.html import form, fieldset, legend
 
-# 基本表单
+# Basic form
 basic_form = form(
     fieldset(
-        legend('用户信息'),
-        # 表单字段...
+        legend('User Information'),
+        # Form fields...
     )
 ).action('/submit').method('post').enctype('multipart/form-data')
 ```
 
-### 输入字段
+### Input Fields
 
 ```python
 from pure.html import input, textarea, select, option, optgroup
 
-# 文本输入
-text_input = input().type('text').name('username').placeholder('用户名').required(True)
+# Text input
+text_input = input().type('text').name('username').placeholder('Username').required(True)
 
-# 密码输入
-password_input = input().type('password').name('password').placeholder('密码').required(True)
+# Password input
+password_input = input().type('password').name('password').placeholder('Password').required(True)
 
-# 邮箱输入
-email_input = input().type('email').name('email').placeholder('邮箱地址')
+# Email input
+email_input = input().type('email').name('email').placeholder('Email address')
 
-# 数字输入
+# Number input
 number_input = input().type('number').name('age').min('18').max('100').step('1')
 
-# 日期输入
+# Date input
 date_input = input().type('date').name('birthday')
 
-# 文件上传
+# File upload
 file_input = input().type('file').name('avatar').accept('image/*')
 
-# 多行文本
-textarea_input = textarea('默认内容').name('description').rows('5').cols('50')
+# Textarea
+textarea_input = textarea('Default content').name('description').rows('5').cols('50')
 
-# 下拉选择
+# Select dropdown
 select_input = select(
     optgroup(
-        option('选项 1').value('1'),
-        option('选项 2').value('2').selected(True)
-    ).label('分组 1'),
+        option('Option 1').value('1'),
+        option('Option 2').value('2').selected(True)
+    ).label('Group 1'),
     optgroup(
-        option('选项 3').value('3'),
-        option('选项 4').value('4')
-    ).label('分组 2')
+        option('Option 3').value('3'),
+        option('Option 4').value('4')
+    ).label('Group 2')
 ).name('category')
 ```
 
-### 按钮
+### Buttons
 
 ```python
 from pure.html import button
 
-# 提交按钮
-submit_button = button('提交').type('submit').class_name('btn btn-primary')
+# Submit button
+submit_button = button('Submit').type('submit').class_name('btn btn-primary')
 
-# 重置按钮
-reset_button = button('重置').type('reset').class_name('btn btn-secondary')
+# Reset button
+reset_button = button('Reset').type('reset').class_name('btn btn-secondary')
 
-# 普通按钮
-normal_button = button('点击').type('button').onclick('handleClick()').class_name('btn')
+# Normal button
+normal_button = button('Click').type('button').onclick('handleClick()').class_name('btn')
 ```
 
-### 标签
+### Labels
 
 ```python
 from pure.html import label
 
-# 表单标签
-form_label = label('用户名').for_('username')
+# Form label (use htmlFor since 'for' is a Python keyword)
+form_label = label('Username').htmlFor('username')
 
-# 包含输入的标签
+# Label with input
 label_with_input = label(
-    '同意条款',
+    'Agree to terms',
     input().type('checkbox').name('agree').value('1')
 )
 ```
 
-## 交互元素
+## Interactive Elements
 
-### 详情和摘要
+### Details and Summary
 
 ```python
 from pure.html import details, summary
 
-# 可折叠内容
+# Collapsible content
 collapsible_content = details(
-    summary('点击展开'),
-    p('这是隐藏的内容。'),
-    p('可以包含任何元素。')
+    summary('Click to expand'),
+    p('This is hidden content.'),
+    p('Can contain any elements.')
 ).open(False)
 ```
 
-### 对话框
+### Dialog
 
 ```python
 from pure.html import dialog
 
-# 对话框
+# Modal dialog
 modal_dialog = dialog(
-    h2('对话框标题'),
-    p('对话框内容'),
-    button('关闭').onclick('this.closest("dialog").close()')
+    h2('Dialog Title'),
+    p('Dialog content'),
+    button('Close').onclick('this.closest("dialog").close()')
 ).id('modal')
 ```
 
-## 嵌入内容
+## Embedded Content
 
-### 内联框架
+### Inline Frame
 
 ```python
 from pure.html import iframe
 
-# 嵌入页面
-embedded_page = iframe().src('https://example.com').width('800').height('600').title('嵌入页面')
+# Embedded page
+embedded_page = iframe().src('https://example.com').width('800').height('600').title('Embedded page')
 ```
 
-### 对象和嵌入
+### Object and Embed
 
 ```python
-from pure.html import object_, embed, param
+from pure.html import object, embed, param
 
-# 嵌入对象
-embedded_object = object_(
+# Embedded object
+embedded_object = object(
     param().name('movie').value('movie.swf'),
     param().name('quality').value('high')
 ).data('movie.swf').type('application/x-shockwave-flash')
 
-# 直接嵌入
+# Direct embed
 direct_embed = embed().src('movie.swf').type('application/x-shockwave-flash').width('400').height('300')
 ```
 
-## 脚本和样式
+## Script and Style
 
-### 脚本
+### Scripts
 
 ```python
 from pure.html import script, noscript
 
-# 外部脚本
+# External script
 external_script = script().src('script.js').defer(True)
 
-# 内联脚本
+# Inline script
 inline_script = script('console.log("Hello World");')
 
-# 无脚本回退
+# No script fallback
 no_script_fallback = noscript(
-    p('请启用 JavaScript 以获得最佳体验。')
+    p('Please enable JavaScript for the best experience.')
 )
 ```
 
-### 样式
+### Styles
 
 ```python
 from pure.html import style, link
 
-# 内联样式
+# Inline style
 inline_style = style('''
     body { margin: 0; padding: 0; }
     .container { max-width: 1200px; margin: 0 auto; }
 ''')
 
-# 外部样式表
+# External stylesheet
 external_style = link().rel('stylesheet').href('styles.css')
 ```
 
-## 元数据
+## Metadata
 
 ```python
 from pure.html import meta, base
 
-# 字符编码
+# Character encoding
 charset_meta = meta().charset('UTF-8')
 
-# 视口设置
+# Viewport settings
 viewport_meta = meta().name('viewport').content('width=device-width, initial-scale=1.0')
 
-# SEO 元数据
-description_meta = meta().name('description').content('页面描述')
-keywords_meta = meta().name('keywords').content('关键词1, 关键词2')
+# SEO metadata
+description_meta = meta().name('description').content('Page description')
+keywords_meta = meta().name('keywords').content('keyword1, keyword2')
 
 # Open Graph
-og_title = meta().property('og:title').content('页面标题')
-og_description = meta().property('og:description').content('页面描述')
+og_title = meta().property('og:title').content('Page title')
+og_description = meta().property('og:description').content('Page description')
 
-# 基础 URL
+# Base URL
 base_url = base().href('https://example.com/')
 ```
 
-## 下一步
+## Next Steps
 
-- [SVG 标签](/api/svg-tags) - 了解 SVG 图形元素
-- [核心类](/api/core) - 了解核心类的详细功能
-- [基本用法](/guide/basic-usage) - 学习如何使用这些标签
+- [SVG Tags](/api/svg-tags) - Learn about SVG graphic elements
+- [Core Classes](/api/core) - Learn about core class functionality
+- [Basic Usage](/guide/basic-usage) - Learn how to use these tags

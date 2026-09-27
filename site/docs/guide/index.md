@@ -1,25 +1,25 @@
-# 什么是 Purepy?
+# What is Purepy?
 
-Purepy 是一个 Python 模板引擎，受 ReactJS 函数式组件的启发。它使用 Python 对象来表示 HTML 元素，提供了一种声明式的方式来构建用户界面，使代码更加简洁、可维护和可重用。
+Purepy is a Python template engine inspired by ReactJS functional components. It uses Python objects to represent HTML elements, providing a declarative way to build user interfaces that makes code more concise, maintainable, and reusable.
 
-## 特性
+## Features
 
-### 1. 声明式渲染
+### 1. Declarative Rendering
 
-使用 Purepy，你可以用声明式的方式描述你的 UI：
+With Purepy, you can describe your UI in a declarative way:
 
 ```python
 from pure.html import div, h1, p
 
 div(
-    h1('欢迎使用 Purepy'),
-    p('这是一个 Python 模板引擎')
-).class_name('container').to_print()
+    h1('Welcome to Purepy'),
+    p('This is a Python template engine')
+).class_name('container').print()
 ```
 
-### 2. 组件化开发
+### 2. Component-based Development
 
-将 UI 拆分为独立、可重用的 Python 函数：
+Break down UI into independent, reusable Python functions:
 
 ```python
 from pure.html import div, h2, p
@@ -33,27 +33,27 @@ def Card(props):
         p(content)
     ).class_name('card')
 
-# 使用组件
+# Use components
 div(
     Card({
-        'title': '标题 1',
-        'content': '内容 1'
+        'title': 'Title 1',
+        'content': 'Content 1'
     }),
     Card({
-        'title': '标题 2',
-        'content': '内容 2'
+        'title': 'Title 2',
+        'content': 'Content 2'
     })
-).class_name('card-grid').to_print()
+).class_name('card-grid').print()
 ```
 
-### 3. XML 支持
+### 3. XML Support
 
-Purepy 提供了强大的 XML 处理能力，让您可以轻松地生成和处理 XML 文档：
+Purepy provides powerful XML processing capabilities:
 
 ```python
 from pure.core.XML import XML
 
-# 创建 XML 元素
+# Create XML elements
 xml = XML.customers(
     XML.customer(
         XML.name('Charter Group'),
@@ -66,13 +66,13 @@ xml = XML.customers(
     ).id('55000')
 )
 
-# 保存到文件
+# Save to file
 xml.toSave('./example.xml')
 ```
 
-### 4. SVG 支持
+### 4. SVG Support
 
-内置完整的 SVG 标签支持：
+Built-in complete SVG tag support:
 
 ```python
 from pure.svg import svg, circle, rect
@@ -91,53 +91,53 @@ svg(
         .cy(50)
         .r(30)
         .fill('red')
-).width(100).height(100).to_print()
+).width(100).height(100).print()
 ```
 
-## 为什么选择 Purepy?
+## Why Choose Purepy?
 
-### 1. 简单易用
+### 1. Simple and Easy
 
-Purepy 的 API 设计简单直观，学习曲线平缓。只需要了解 Python 即可快速上手。
+Purepy's API is designed to be simple and intuitive with a gentle learning curve. You only need to know Python to get started quickly.
 
-### 2. 性能优秀
+### 2. Excellent Performance
 
-通过高效的对象转换算法，Purepy 能够提供出色的渲染性能。
+Through efficient object conversion algorithms, Purepy provides excellent rendering performance.
 
-### 3. 组件化
+### 3. Component-based
 
-组件化开发让代码更容易维护和复用，提高开发效率。
+Component-based development makes code easier to maintain and reuse, improving development efficiency.
 
-### 4. 类型安全
+### 4. Type Safety
 
-Purepy 完全支持 Python 的类型提示系统，提供更好的开发体验。
+Purepy fully supports Python's type hint system, providing a better development experience.
 
-### 5. 轻量级
+### 5. Lightweight
 
-核心库体积小巧，没有多余的依赖，可以轻松集成到现有项目中。
+The core library is small and has no unnecessary dependencies, making it easy to integrate into existing projects.
 
-## 快速开始
+## Quick Start
 
-### 安装
+### Installation
 
 ```bash
 pip install yonld-purepy
 ```
 
-### 基本使用
+### Basic Usage
 
 ```python
 from pure.html import div, h1, p
 
-# 创建页面
+# Create page
 div(
-    h1('欢迎'),
-    p('开始使用 Purepy 吧！')
-).class_name('container').to_print()
+    h1('Welcome'),
+    p('Start using Purepy!')
+).class_name('container').print()
 ```
 
-## 下一步
+## Next Steps
 
-- [快速开始](/guide/getting-started) - 学习如何创建你的第一个 Purepy 应用
-- [安装](/guide/installation) - 了解如何安装和配置 Purepy
-- [基本概念](/guide/concepts) - 深入理解 Purepy 的核心概念
+- [Quick Start](/guide/getting-started) - Learn how to create your first Purepy application
+- [Installation](/guide/installation) - Learn how to install and configure Purepy
+- [Core Concepts](/guide/concepts) - Understand Purepy's core concepts in depth

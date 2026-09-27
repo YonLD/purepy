@@ -1,32 +1,32 @@
-# 简介
+# Introduction
 
-欢迎使用 Purepy！这是一个受 ReactJS 启发的 Python 模板引擎，让你能够以函数式的方式创建 HTML、SVG 和 XML 内容。
+Welcome to Purepy! This is a Python template engine inspired by ReactJS that allows you to create HTML, SVG, and XML content in a functional way.
 
-## 什么是 Purepy？
+## What is Purepy?
 
-Purepy 是一个现代化的 Python 模板引擎，它借鉴了 ReactJS 的组件化思想，让你能够：
+Purepy is a modern Python template engine that borrows the component-based thinking from ReactJS, enabling you to:
 
-- **函数式编程**：每个 HTML 标签都是一个函数
-- **组件化开发**：将 UI 拆分成可重用的组件
-- **类型安全**：完整的类型提示支持
-- **链式调用**：流畅的 API 设计
-- **工具函数**：内置样式和类名处理工具
+- **Functional Programming**: Every HTML tag is a function
+- **Component-based Development**: Break UI into reusable components
+- **Type Safety**: Complete type hint support
+- **Method Chaining**: Fluent API design
+- **Utility Functions**: Built-in style and class name processing tools
 
-## 核心特性
+## Core Features
 
-### 1. 直观的语法
+### 1. Intuitive Syntax
 
 ```python
 from pure.html import div, h1, p
 
-# 创建 HTML 结构就像调用函数一样简单
+# Creating HTML structure is as simple as calling functions
 content = div(
-    h1('欢迎使用 Purepy'),
-    p('这是一个现代化的 Python 模板引擎')
+    h1('Welcome to Purepy'),
+    p('This is a modern Python template engine')
 ).class_name('welcome')
 ```
 
-### 2. 组件化思维
+### 2. Component-based Thinking
 
 ```python
 def Card(props):
@@ -38,23 +38,23 @@ def Card(props):
         p(content).class_name('card-content')
     ).class_name('card')
 
-# 使用组件
+# Using components
 my_card = Card({
-    'title': '卡片标题',
-    'content': '卡片内容'
+    'title': 'Card Title',
+    'content': 'Card Content'
 })
 ```
 
-### 3. 强大的工具函数
+### 3. Powerful Utility Functions
 
 ```python
 from pure.clx import clx
 from pure.sty import sty
 
-# 条件类名
+# Conditional class names
 classes = clx('btn', {'active': is_active, 'disabled': is_disabled})
 
-# 样式对象
+# Style objects
 styles = sty({
     'color': 'red',
     'font-size': '16px',
@@ -62,35 +62,35 @@ styles = sty({
 })
 ```
 
-## 设计理念
+## Design Philosophy
 
-### 函数式优先
+### Function-first
 
-Purepy 采用函数式编程范式，每个 HTML 标签都是一个纯函数，这带来了以下好处：
+Purepy adopts a functional programming paradigm where every HTML tag is a pure function, bringing the following benefits:
 
-- **可预测性**：相同的输入总是产生相同的输出
-- **可测试性**：函数易于单元测试
-- **可组合性**：小函数可以组合成复杂的结构
-- **可重用性**：组件可以在不同地方重复使用
+- **Predictability**: Same input always produces same output
+- **Testability**: Functions are easy to unit test
+- **Composability**: Small functions can be composed into complex structures
+- **Reusability**: Components can be reused in different places
 
-### 声明式语法
+### Declarative Syntax
 
-与传统的模板引擎不同，Purepy 使用声明式语法：
+Unlike traditional template engines, Purepy uses declarative syntax:
 
 ```python
-# 声明式：描述你想要什么
+# Declarative: describe what you want
 div(
-    h1('标题'),
-    p('内容')
+    h1('Title'),
+    p('Content')
 ).class_name('container')
 
-# 而不是命令式：描述如何做
-# template = "<div class='container'><h1>标题</h1><p>内容</p></div>"
+# Instead of imperative: describe how to do it
+# template = "<div class='container'><h1>Title</h1><p>Content</p></div>"
 ```
 
-### 类型安全
+### Type Safety
 
-Purepy 提供完整的类型提示支持：
+Purepy provides complete type hint support:
 
 ```python
 from typing import Dict, Any
@@ -106,7 +106,7 @@ def Card(props: Dict[str, Any]) -> 'HTML':
     ).class_name('card')
 ```
 
-## 与其他模板引擎的对比
+## Comparison with Other Template Engines
 
 ### vs Jinja2
 
@@ -127,11 +127,11 @@ def Card(props):
     ).class_name('card')
 ```
 
-**Purepy 的优势：**
-- 完整的 Python 语法支持
-- 更好的 IDE 支持（自动完成、重构等）
-- 类型检查
-- 更容易调试
+**Purepy Advantages:**
+- Complete Python syntax support
+- Better IDE support (auto-completion, refactoring, etc.)
+- Type checking
+- Easier debugging
 
 ### vs Django Templates
 
@@ -141,7 +141,7 @@ def Card(props):
     <h1>{{ title }}</h1>
     <p>{{ content }}</p>
     {% if user.is_authenticated %}
-        <button>编辑</button>
+        <button>Edit</button>
     {% endif %}
 </div>
 ```
@@ -154,20 +154,20 @@ def Card(props):
     return div(
         h1(props['title']),
         p(props['content']),
-        button('编辑') if user and user.is_authenticated else None
+        button('Edit') if user and user.is_authenticated else None
     ).class_name('card')
 ```
 
-**Purepy 的优势：**
-- 使用标准 Python 语法
-- 更强的逻辑表达能力
-- 更好的代码重用
+**Purepy Advantages:**
+- Uses standard Python syntax
+- Stronger logical expression capabilities
+- Better code reuse
 
-## 适用场景
+## Use Cases
 
-Purepy 特别适合以下场景：
+Purepy is particularly suitable for the following scenarios:
 
-### 1. 静态站点生成
+### 1. Static Site Generation
 
 ```python
 from pure.html import html, head, title, body, div, h1, p
@@ -183,41 +183,41 @@ def generate_blog_post(post):
         )
     )
 
-# 生成多个页面
+# Generate multiple pages
 for post in posts:
     page = generate_blog_post(post)
-    page.to_save(f'posts/{post["slug"]}.html')
+    page.save(f'posts/{post["slug"]}.html')
 ```
 
-### 2. 邮件模板
+### 2. Email Templates
 
 ```python
 def email_template(user, content):
     return html(
-        head(title('邮件通知')),
+        head(title('Email Notification')),
         body(
             div(
-                h1(f'你好，{user.name}！'),
+                h1(f'Hello, {user.name}!'),
                 div(content),
-                p('感谢使用我们的服务')
+                p('Thank you for using our service')
             ).class_name('email-container')
         )
     )
 ```
 
-### 3. 报告生成
+### 3. Report Generation
 
 ```python
 def generate_report(data):
     return html(
-        head(title('数据报告')),
+        head(title('Data Report')),
         body(
             div(
-                h1('月度报告'),
+                h1('Monthly Report'),
                 *[
                     div(
                         h2(item['title']),
-                        p(f'数值：{item["value"]}')
+                        p(f'Value: {item["value"]}')
                     ).class_name('report-item')
                     for item in data
                 ]
@@ -226,10 +226,10 @@ def generate_report(data):
     )
 ```
 
-### 4. 组件库开发
+### 4. Component Library Development
 
 ```python
-# 创建可重用的 UI 组件库
+# Create reusable UI component library
 def Button(props):
     variant = props.get('variant', 'primary')
     size = props.get('size', 'medium')
@@ -243,35 +243,35 @@ def Modal(props):
         div(
             h2(props.get('title', '')),
             div(props.get('children', '')),
-            Button({'children': '关闭', 'variant': 'secondary'})
+            Button({'children': 'Close', 'variant': 'secondary'})
         ).class_name('modal-content')
     ).class_name('modal')
 ```
 
-## 学习路径
+## Learning Path
 
-建议按以下顺序学习 Purepy：
+We recommend learning Purepy in the following order:
 
-1. **[安装](/guide/installation)** - 设置开发环境
-2. **[快速开始](/guide/getting-started)** - 创建第一个应用
-3. **[基本概念](/guide/concepts)** - 理解核心概念
-4. **[基本用法](/guide/basic-usage)** - 掌握基础语法
-5. **[组件](/guide/components)** - 学习组件化开发
-6. **[属性](/guide/props)** - 理解属性系统
-7. **[TailwindCSS 集成](/guide/tailwindcss)** - 样式处理
+1. **[Installation](/guide/installation)** - Set up development environment
+2. **[Getting Started](/guide/getting-started)** - Create your first application
+3. **[Core Concepts](/guide/concepts)** - Understand core concepts
+4. **[Basic Usage](/guide/basic-usage)** - Master basic syntax
+5. **[Components](/guide/components)** - Learn component-based development
+6. **[Props](/guide/props)** - Understand the props system
+7. **[TailwindCSS Integration](/guide/tailwindcss)** - Style processing
 
-## 社区和支持
+## Community and Support
 
 - **GitHub**: [https://github.com/YonLD/purepy](https://github.com/YonLD/purepy)
-- **文档**: 你正在阅读的这份文档
-- **问题反馈**: 通过 GitHub Issues 报告问题
+- **Documentation**: The documentation you're reading
+- **Issue Reporting**: Report issues through GitHub Issues
 
-## 下一步
+## Next Steps
 
-现在你已经了解了 Purepy 的基本概念，可以开始：
+Now that you understand the basic concepts of Purepy, you can start:
 
-- [安装 Purepy](/guide/installation)
-- [快速开始教程](/guide/getting-started)
-- [查看 API 文档](/api/)
+- [Install Purepy](/guide/installation)
+- [Getting Started Tutorial](/guide/getting-started)
+- [View API Documentation](/api/)
 
-让我们开始构建令人惊叹的应用吧！
+Let's start building amazing applications!

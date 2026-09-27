@@ -126,10 +126,10 @@ function pageUrl(relPath) {
 
 /** Group label and ordering for each docs subtree. */
 const SECTIONS = [
-  { prefix: ['guide'], label: '中文指南 (Guide)' },
-  { prefix: ['api'], label: '中文 API 参考 (API Reference)' },
-  { prefix: ['en', 'guide'], label: 'English Guide' },
-  { prefix: ['en', 'api'], label: 'English API Reference' },
+  { prefix: ['guide'], label: 'Guide' },
+  { prefix: ['api'], label: 'API Reference' },
+  { prefix: ['zh', 'guide'], label: '中文指南 (Guide)' },
+  { prefix: ['zh', 'api'], label: '中文 API 参考 (API Reference)' },
 ]
 
 /** Sort: index pages first, then alphabetically within each section. */
