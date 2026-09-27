@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+"""Purepy CLI tool."""
+
+import sys
+import os
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+from pure.compile.Internal.CheckCommand import CheckCommand
+from pure.compile.Internal.ArtifactCommand import ArtifactCommand
+from pure.component.Registry import Registry
+
+
+def main():
+    argv = sys.argv[1:]
+
+    if not argv:
+        print("Usage: pure <command> [options] [paths...]")
+        print("")
+        print("Commands:")
+        print("  check <path>...     Check component contracts")
+        print("  compile <path>...   Compile shape and unit files into artifacts")
+        print("  -v, --version       Print version")
+        print("  -h, --help          Show this help")
+        return 1
+
+    command = argv[0]
+
+    if command in ('-v', '--version', 'version'):
+        from pure import __version__
+        print(f"pure {__version__}")
+        return 0
+
+    if command in ('-h', '--help'):
+        print("Usage: pure <command> [options] [paths...]")
+        print("")
+        print("Commands:")
+        print("  check <path>...     Check component contracts")
+        print("  compile <path>...   Compile shape and unit files into artifacts")
+        print("  -v, --version       Print version")
+        print("  -h, --help          Show this help")
+        return 0
+
+    if command == 'check':
+        cmd = CheckCommand(lambda f: Registry.unitsFor(f))
+        return cmd.run(argv)
+
+    if command == 'compile':
+        cmd = ArtifactCommand(lambda f: Registry.unitsFor(f))
+        return cmd.run(argv)
+
+    print(f"pure: unknown command '{command}'")
+    print("")
+    print("Usage: pure <command> [options] [paths...]")
+    return 1
+
+
+if __name__ == '__main__':
+    sys.exit(main())

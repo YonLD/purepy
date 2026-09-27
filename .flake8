@@ -1,0 +1,6 @@
+[flake8]
+max-line-length = 88
+extend-exclude = pure/__init__.py
+# E203 and W503 disagree with black's formatting of slices and line breaks;
+# black is the authority on layout, so these two are not defects here.
+extend-ignore = E203, W503
