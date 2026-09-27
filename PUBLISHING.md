@@ -4,7 +4,7 @@ This guide explains how to publish the Purepy package to PyPI.
 
 ## Prerequisites
 
-1. **Python 3.8+** installed
+1. **Python 3.10+** installed
 2. **PyPI account** - Register at https://pypi.org/account/register/
 3. **Test PyPI account** (optional but recommended) - Register at https://test.pypi.org/account/register/
 4. **API tokens** for PyPI and Test PyPI (recommended over username/password)

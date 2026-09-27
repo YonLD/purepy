@@ -9,20 +9,29 @@ def animate(*args):
     return SVG("animate", args)
 
 
-def animateMotion(*args):
+def animatemotion(*args):
     return SVG("animateMotion", args)
 
 
-def animateTransform(*args):
+globals()["animateMotion"] = animatemotion
+
+
+def animatetransform(*args):
     return SVG("animateTransform", args)
+
+
+globals()["animateTransform"] = animatetransform
 
 
 def circle(*args):
     return SVG("circle", args)
 
 
-def clipPath(*args):
+def clippath(*args):
     return SVG("clipPath", args)
+
+
+globals()["clipPath"] = clippath
 
 
 def defs(*args):
@@ -37,112 +46,190 @@ def ellipse(*args):
     return SVG("ellipse", args)
 
 
-def feBlend(*args):
+def feblend(*args):
     return SVG("feBlend", args)
 
 
-def feColorMatrix(*args):
+globals()["feBlend"] = feblend
+
+
+def fecolormatrix(*args):
     return SVG("feColorMatrix", args)
 
 
-def feComponentTransfer(*args):
+globals()["feColorMatrix"] = fecolormatrix
+
+
+def fecomponenttransfer(*args):
     return SVG("feComponentTransfer", args)
 
 
-def feComposite(*args):
+globals()["feComponentTransfer"] = fecomponenttransfer
+
+
+def fecomposite(*args):
     return SVG("feComposite", args)
 
 
-def feConvolveMatrix(*args):
+globals()["feComposite"] = fecomposite
+
+
+def feconvolvematrix(*args):
     return SVG("feConvolveMatrix", args)
 
 
-def feDiffuseLighting(*args):
+globals()["feConvolveMatrix"] = feconvolvematrix
+
+
+def fediffuselighting(*args):
     return SVG("feDiffuseLighting", args)
 
 
-def feDisplacementMap(*args):
+globals()["feDiffuseLighting"] = fediffuselighting
+
+
+def fedisplacementmap(*args):
     return SVG("feDisplacementMap", args)
 
 
-def feDistantLight(*args):
+globals()["feDisplacementMap"] = fedisplacementmap
+
+
+def fedistantlight(*args):
     return SVG("feDistantLight", args)
 
 
-def feDropShadow(*args):
+globals()["feDistantLight"] = fedistantlight
+
+
+def fedropshadow(*args):
     return SVG("feDropShadow", args)
 
 
-def feFlood(*args):
+globals()["feDropShadow"] = fedropshadow
+
+
+def feflood(*args):
     return SVG("feFlood", args)
 
 
-def feFuncA(*args):
+globals()["feFlood"] = feflood
+
+
+def fefunca(*args):
     return SVG("feFuncA", args)
 
 
-def feFuncB(*args):
+globals()["feFuncA"] = fefunca
+
+
+def fefuncb(*args):
     return SVG("feFuncB", args)
 
 
-def feFuncG(*args):
+globals()["feFuncB"] = fefuncb
+
+
+def fefuncg(*args):
     return SVG("feFuncG", args)
 
 
-def feFuncR(*args):
+globals()["feFuncG"] = fefuncg
+
+
+def fefuncr(*args):
     return SVG("feFuncR", args)
 
 
-def feGaussianBlur(*args):
+globals()["feFuncR"] = fefuncr
+
+
+def fegaussianblur(*args):
     return SVG("feGaussianBlur", args)
 
 
-def feImage(*args):
+globals()["feGaussianBlur"] = fegaussianblur
+
+
+def feimage(*args):
     return SVG("feImage", args)
 
 
-def feMerge(*args):
+globals()["feImage"] = feimage
+
+
+def femerge(*args):
     return SVG("feMerge", args)
 
 
-def feMergeNode(*args):
+globals()["feMerge"] = femerge
+
+
+def femergenode(*args):
     return SVG("feMergeNode", args)
 
 
-def feMorphology(*args):
+globals()["feMergeNode"] = femergenode
+
+
+def femorphology(*args):
     return SVG("feMorphology", args)
 
 
-def feOffset(*args):
+globals()["feMorphology"] = femorphology
+
+
+def feoffset(*args):
     return SVG("feOffset", args)
 
 
-def fePointLight(*args):
+globals()["feOffset"] = feoffset
+
+
+def fepointlight(*args):
     return SVG("fePointLight", args)
 
 
-def feSpecularLighting(*args):
+globals()["fePointLight"] = fepointlight
+
+
+def fespecularlighting(*args):
     return SVG("feSpecularLighting", args)
 
 
-def feSpotLight(*args):
+globals()["feSpecularLighting"] = fespecularlighting
+
+
+def fespotlight(*args):
     return SVG("feSpotLight", args)
 
 
-def feTile(*args):
+globals()["feSpotLight"] = fespotlight
+
+
+def fetile(*args):
     return SVG("feTile", args)
 
 
-def feTurbulence(*args):
+globals()["feTile"] = fetile
+
+
+def feturbulence(*args):
     return SVG("feTurbulence", args)
+
+
+globals()["feTurbulence"] = feturbulence
 
 
 def filter(*args):
     return SVG("filter", args)
 
 
-def foreignObject(*args):
+def foreignobject(*args):
     return SVG("foreignObject", args)
+
+
+globals()["foreignObject"] = foreignobject
 
 
 def g(*args):
@@ -157,8 +244,11 @@ def line(*args):
     return SVG("line", args)
 
 
-def linearGradient(*args):
+def lineargradient(*args):
     return SVG("linearGradient", args)
+
+
+globals()["linearGradient"] = lineargradient
 
 
 def marker(*args):
@@ -193,8 +283,11 @@ def polyline(*args):
     return SVG("polyline", args)
 
 
-def radialGradient(*args):
+def radialgradient(*args):
     return SVG("radialGradient", args)
+
+
+globals()["radialGradient"] = radialgradient
 
 
 def rect(*args):
@@ -233,8 +326,11 @@ def text(*args):
     return SVG("text", args)
 
 
-def textPath(*args):
+def textpath(*args):
     return SVG("textPath", args)
+
+
+globals()["textPath"] = textpath
 
 
 def title(*args):

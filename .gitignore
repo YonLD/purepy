@@ -142,6 +142,16 @@ dmypy.json
 ehthumbs.db
 Thumbs.db
 
+# Precompiled shape artifacts (`pure compile`)
+*.pure.py
+*.plain.py
+
+# Generated example output
+examples/xml/example.xml
+
+# Agent tool worktrees
+.kilo/
+
 # nodejs
 site/node_modules/
 site/docs/.vitepress/cache/

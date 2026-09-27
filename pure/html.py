@@ -101,6 +101,9 @@ def Del(*args):
     return HTML("del", args)
 
 
+globals()["del"] = Del
+
+
 def details(*args):
     return HTML("details", args)
 
@@ -431,6 +434,14 @@ def u(*args):
 
 def ul(*args):
     return HTML("ul", args)
+
+
+def var(*args):
+    return HTML("var", args)
+
+
+def htmlvar(*args):
+    return HTML("var", args)
 
 
 def video(*args):

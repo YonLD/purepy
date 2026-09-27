@@ -3,7 +3,7 @@ from typing import Union, Tuple
 from .Raw import Raw
 from .Tag import Tag
 
-SELF_CLOSE_HTML_TAGS = [
+SELF_CLOSE_HTML_TAGS = {
     "area",
     "base",
     "br",
@@ -17,19 +17,22 @@ SELF_CLOSE_HTML_TAGS = [
     "source",
     "track",
     "wbr",
-]
+}
 
 
 class HTML(Tag):
-    def __init__(
-        self,
-        tag_name: str,
-        children: Tuple[Union[str, Raw, Tag], ...] = (),
-    ):
+    DOCUMENT_HEADER = "<!DOCTYPE html>"
+
+    def __init__(self, tag_name: str, children: Tuple[Union[str, Raw, Tag], ...] = ()):
         super().__init__(tag_name, children)
         if tag_name.lower() in SELF_CLOSE_HTML_TAGS:
             self.set_self_close(True)
 
-    def to_save(self, path: str, header: str = "<!DOCTYPE html>") -> None:
-        with open(path, "w") as file:
-            file.write(header + str(self.to_PDom()))
+    def isDocumentRoot(self) -> bool:
+        return self.get_tag_name().lower() == "html"
+
+    def defaultHeader(self) -> str:
+        return self.DOCUMENT_HEADER
+
+    def guardAttributeName(self, key: str) -> None:
+        self.guardStandardAttribute(key)

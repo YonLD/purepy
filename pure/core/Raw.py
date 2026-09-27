@@ -1,18 +1,17 @@
-from enum import Enum
+from .Markup import Markup
 
 
-class RawType(Enum):
-    HTML = "HTML"
-    XML = "XML"
+class Raw(Markup):
+    def __init__(self, value: str):
+        self._value = value
 
+    @staticmethod
+    def of(value: str) -> "Raw":
+        return Raw(value)
 
-class Raw:
-    def __init__(self, type: RawType, content: str):
-        self.__type = type
-        self.__content = content
+    @property
+    def value(self) -> str:
+        return self._value
 
     def __str__(self) -> str:
-        return self.__content
-
-    def to_JSON(self):
-        return {"type": self.__type.value, "content": self.__content}
+        return self._value

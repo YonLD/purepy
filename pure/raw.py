@@ -1,9 +1,9 @@
-from .core.Raw import Raw, RawType
+from .core.Raw import Raw
 
 
-def raw_html(content: str):
-    return Raw(RawType.HTML, content)
+def raw_html(content: str) -> Raw:
+    return Raw.of(content)
 
 
-def raw_xml(content: str):
-    return Raw(RawType.XML, content)
+def raw_xml(content: str) -> Raw:
+    return Raw.of(content)
