@@ -13,21 +13,21 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
 
     name: Python ${{ matrix.python-version }} Tests
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Cache pip packages
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ matrix.python-version }}-${{ hashFiles('**/requirements*.txt', '**/pyproject.toml') }}
@@ -49,10 +49,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
@@ -72,3 +72,80 @@ jobs:
 
       - name: Check formatting with black
         run: black --check pure/
+
+  examples:
+    runs-on: ubuntu-latest
+    name: Examples smoke test
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install purepy
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Compile the examples
+        run: python bin/pure compile --plain examples
+
+      - name: Check the compiled examples
+        run: python bin/pure compile --check --plain examples
+
+      - name: Check the example contracts
+        run: python bin/pure check --strict examples
+
+      - name: The demo server renders
+        run: |
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, '.')
+          from examples import server
+          for name in ('BootstrapCover', 'BootstrapFeatures', 'BootstrapPricing', 'EventCounter'):
+              assert hasattr(server, name), f'examples/server.py is missing {name}'
+          PY
+
+  docs:
+    runs-on: ubuntu-latest
+    name: Docs quality
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install purepy
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: site
+
+      - name: Check documentation quality
+        run: npm run docs:qa
+        working-directory: site
+        env:
+          DOCS_QA_REQUIRE_PYTHON: '1'
+          DOCS_QA_STRICT: '1'
+
+      - name: Build documentation
+        run: npm run docs:build
+        working-directory: site
