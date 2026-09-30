@@ -59,12 +59,16 @@ export default {
         {
           text: 'Support',
           items: [
-            { text: 'Troubleshooting', link: '/guide/troubleshooting' }
+            { text: 'Troubleshooting', link: '/guide/troubleshooting' },
+            { text: 'Upgrading', link: '/guide/upgrading' }
           ]
         },
         {
           text: 'Integration',
           items: [
+            { text: 'Examples', link: '/guide/examples' },
+            { text: 'HTMX Integration', link: '/guide/htmx' },
+            { text: 'Events', link: '/guide/events' },
             { text: 'Flask Integration', link: '/guide/flask' },
             { text: 'Django Integration', link: '/guide/django' },
             { text: 'TailwindCSS Integration', link: '/guide/tailwindcss' }
@@ -79,8 +83,11 @@ export default {
             { text: 'Component API', link: '/api/component' },
             { text: 'Compile API', link: '/api/compile' },
             { text: 'Core Classes', link: '/api/core' },
+            { text: 'HTML Class', link: '/api/html' },
             { text: 'HTML Tags', link: '/api/html-tags' },
-            { text: 'SVG Tags', link: '/api/svg-tags' }
+            { text: 'SVG Class', link: '/api/svg' },
+            { text: 'SVG Tags', link: '/api/svg-tags' },
+            { text: 'XML Class', link: '/api/xml' }
           ]
         }
       ],
@@ -114,12 +121,16 @@ export default {
         {
           text: '支持',
           items: [
-            { text: '故障排查', link: '/zh/guide/troubleshooting' }
+            { text: '故障排查', link: '/zh/guide/troubleshooting' },
+            { text: '升级指南', link: '/zh/guide/upgrading' }
           ]
         },
         {
           text: '集成',
           items: [
+            { text: '示例', link: '/zh/guide/examples' },
+            { text: 'HTMX 集成', link: '/zh/guide/htmx' },
+            { text: '事件', link: '/zh/guide/events' },
             { text: 'Flask 集成', link: '/zh/guide/flask' },
             { text: 'Django 集成', link: '/zh/guide/django' },
             { text: 'TailwindCSS 集成', link: '/zh/guide/tailwindcss' }
@@ -136,8 +147,11 @@ export default {
             { text: 'Tag 类', link: '/zh/api/tag' },
             { text: 'Raw 类', link: '/zh/api/raw' },
             { text: '核心类', link: '/zh/api/core' },
+            { text: 'HTML 类', link: '/zh/api/html' },
             { text: 'HTML 标签', link: '/zh/api/html-tags' },
-            { text: 'SVG 标签', link: '/zh/api/svg-tags' }
+            { text: 'SVG 类', link: '/zh/api/svg' },
+            { text: 'SVG 标签', link: '/zh/api/svg-tags' },
+            { text: 'XML 类', link: '/zh/api/xml' }
           ]
         }
       ]
