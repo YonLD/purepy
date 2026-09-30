@@ -97,7 +97,7 @@ class Call(Markup):
                 DevMode.emit(
                     "component '{}': prop '{}' is declared as markup (Trusted) but received {}. "  # noqa: E501
                     "Wrap it with Raw.of() so the value is trusted.".format(
-                        self.__name, prop, type(value).__name__
+                        self.__name, prop, Escaper.debug_type(value)
                     )
                 )
 
@@ -154,9 +154,126 @@ class Call(Markup):
 
     def __data(self) -> Dict[str, Any]:
         data = dict(self.__props)
-        if self.__children:
+
+        from .Registry import Registry
+
+        prepare = Registry.prepare(self.__name)
+
+        if prepare is not None:
+            data = Call.__bind_prepare(prepare, data, self.__name)
+
+        slots = Registry.slots(self.__name)
+
+        if slots is not None and "children" not in slots:
+            if self.__children:
+                raise Exception(
+                    "component '{}' does not read children; "
+                    "add Slot.raw('children') to its template or drop them "
+                    "from the call.".format(self.__name)
+                )
+
+            return data
+
+        if slots is not None or self.__children:
+            # A template with a children slot always receives the list, so a
+            # childless call renders empty content exactly like an empty tag.
             data["children"] = [self.__child_markup(c) for c in self.__children]
+
         return data
+
+    @staticmethod
+    def __bind_prepare(prepare, props: Dict[str, Any], name: str) -> Dict[str, Any]:
+        """Bind the collected props against the prepare() signature.
+
+        Every prop the call set must be declared, every required parameter must
+        be provided, and the call is unpacked by name so the function itself
+        enforces the types.
+        """
+        import inspect
+
+        from ..core.Suggestion import Suggestion
+
+        try:
+            parameters = inspect.signature(prepare).parameters
+        except (TypeError, ValueError):
+            return Call.__invoke_prepare(prepare, props, name)
+
+        for parameter in parameters.values():
+            if parameter.kind is inspect.Parameter.VAR_KEYWORD:
+                return Call.__invoke_prepare(prepare, props, name)
+
+        # A prop the call set carries the purephp name (`class`), while a
+        # prepare() parameter has to be a valid identifier (`class_`), so each
+        # parameter is also reachable under the name the call uses.
+        keys = {name_: Call.__prop_name(name_) for name_ in parameters}
+
+        # Fast path: the props are exactly the parameters, in any order, so the
+        # function can be unpacked by name without the missing/unknown checks.
+        if len(props) == len(parameters) and all(prop in keys for prop in props):
+            return Call.__invoke_prepare(prepare, props, name)
+
+        arguments: Dict[str, Any] = {}
+        missing: List[str] = []
+        bound: Dict[str, Any] = {}
+
+        for parameter_name, parameter in parameters.items():
+            prop = keys[parameter_name]
+
+            if prop in props:
+                arguments[parameter_name] = props[prop]
+                bound[prop] = parameter_name
+                continue
+
+            if parameter.default is inspect.Parameter.empty:
+                missing.append(parameter_name)
+
+        # The unknown props are reported first: a misspelled required prop also
+        # leaves that prop missing, and naming the typo the caller can see is
+        # more actionable than naming the gap the typo caused.
+        unknown = [prop for prop in props if prop not in bound]
+
+        if unknown:
+            # The message names the props the way prepare() declares them, so a
+            # suggestion points at a parameter the developer can actually write.
+            accepted = list(parameters)
+            names = []
+
+            for prop in unknown:
+                nearest = Suggestion.nearest(prop, accepted)
+                names.append(
+                    "'{}'".format(prop)
+                    if nearest is None
+                    else "'{}' (did you mean '{}'?)".format(prop, nearest)
+                )
+
+            raise Exception(
+                "component '{}': unknown prop {}; prepare() accepts {}.".format(
+                    name, ", ".join(names), Call.__quoted(accepted)
+                )
+            )
+
+        if missing:
+            raise Exception(
+                "component '{}': missing prop {}.".format(name, Call.__quoted(missing))
+            )
+
+        return Call.__invoke_prepare(prepare, arguments, name)
+
+    @staticmethod
+    def __invoke_prepare(prepare, arguments: Dict[str, Any], name: str):
+        """Run prepare(), naming the unit in a type error.
+
+        The function itself reports without a unit name, so one failing prop of
+        a page of components is not traceable from the message alone.
+        """
+        try:
+            return prepare(**arguments)
+        except TypeError as error:
+            raise TypeError("component '{}': {}".format(name, error)) from error
+
+    @staticmethod
+    def __quoted(names: List[str]) -> str:
+        return ", ".join("'{}'".format(name) for name in names)
 
     def __child_markup(self, child) -> str:
         if isinstance(child, Tag):

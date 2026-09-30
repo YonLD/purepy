@@ -79,7 +79,6 @@ def test_camel_case_self_closing_tags_are_recognized():
     assert SVG("feComponentTransfer").get_self_close() is False
     assert SVG("feMerge").get_self_close() is False
     assert SVG("FEBLEND").get_self_close() is False
-    assert SVG("feDistantLight").get_self_close() is False
 
 
 def test_leaf_elements_render_self_closed():
@@ -87,6 +86,9 @@ def test_leaf_elements_render_self_closed():
     assert str(SVG("animateTransform")) == "<animateTransform />"
     assert str(SVG("set")) == "<set />"
     assert str(SVG("view")) == "<view />"
+    # A light primitive is childless in practice, so it self-closes like the
+    # other filter primitives.
+    assert str(SVG("feDistantLight")) == "<feDistantLight />"
 
 
 def test_children_keep_elements_open():

@@ -5,13 +5,19 @@ from ..core.Suggestion import Suggestion
 
 
 class Renderer:
-    def __init__(self, source, shape_id: str, slots):
+    def __init__(self, source, shape_id: str, slots, render_fn=None):
         # `source` is either the generated source (compiled on first use) or an
-        # already-built render callable, as an artifact loads it.
+        # already-built render callable, as an artifact loads it. A renderer that
+        # came back from the disk cache carries both, so `source` stays
+        # comparable with a freshly compiled one.
         self.source = source if isinstance(source, str) else None
         self._render_fn: Optional[Callable[[Dict[str, Any]], str]] = (
             None if isinstance(source, str) else source
         )
+
+        if render_fn is not None and isinstance(source, str):
+            self._render_fn = render_fn
+
         self.shape_id = shape_id
         self.slots = slots
 
@@ -71,7 +77,13 @@ class Renderer:
             )
         )
 
-    def save(self, path: str, data: Dict[str, Any], header: str = ""):
+    def save(self, path: str, data: Dict[str, Any], header: str = "") -> int:
+        """Write the rendered output to a file and return how many bytes it took.
+
+        The bytes are UTF-8 whatever the locale says, which is also what
+        purephp's `save()` reports.
+        """
         rendered = self.render(data)
-        with open(path, "w") as f:
-            f.write(header + rendered)
+
+        with open(path, "wb") as f:
+            return f.write((header + rendered).encode("utf-8"))

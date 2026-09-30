@@ -505,7 +505,7 @@ class HTMLTest(unittest.TestCase):
             str(tag),
         )
 
-    def test_save(self):
+    def test_save_writes_the_document_header_by_default(self):
         output_path = "./output.html"
         tag = div("Hello, World!")
 

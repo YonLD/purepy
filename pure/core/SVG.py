@@ -1,7 +1,7 @@
 from typing import Union, Tuple
 
 from .Raw import Raw
-from .Tag import Tag
+from .Tag import Tag, TagFactory
 from .XML import XML
 
 SELF_CLOSE_SVG_TAGS = {
@@ -14,6 +14,7 @@ SELF_CLOSE_SVG_TAGS = {
     "feColorMatrix",
     "feComposite",
     "feConvolveMatrix",
+    "feDistantLight",
     "feDisplacementMap",
     "feDropShadow",
     "feFlood",
@@ -44,7 +45,7 @@ SELF_CLOSE_SVG_TAGS = {
 }
 
 
-class SVG(XML):
+class SVG(XML, metaclass=TagFactory):
     def __init__(self, tag_name: str, children: Tuple[Union[str, Raw, Tag], ...] = ()):
         super().__init__(tag_name, children)
         if not children and tag_name in SELF_CLOSE_SVG_TAGS:

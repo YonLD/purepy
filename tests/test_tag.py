@@ -8,7 +8,7 @@ from pure.core.Slot import Slot
 from pure.core.SVG import SVG
 from pure.core.XML import XML
 
-from pure.html import button, div, p, span
+from pure.html import button, div, input, p, span
 
 Compile.cachePath(None)
 Compile.flush()
@@ -290,6 +290,17 @@ def test_save_prepends_the_custom_header(tmp_path):
         assert f.read() == "# H<div>hi</div>"
 
 
+def test_save_reports_the_bytes_it_wrote(tmp_path):
+    path = tmp_path / "bytes.html"
+
+    # purephp's save() returns what file_put_contents() reports, and the file is
+    # UTF-8 whatever the locale says, so the count is the count the file holds.
+    written = div("中文 café").save(str(path), "")
+
+    assert written == len("<div>中文 café</div>".encode("utf-8"))
+    assert path.stat().st_size == written
+
+
 def test_document_header_matches_subclass_defaults():
     assert HTML("div").documentHeader() == "<!DOCTYPE html>"
     assert XML("root").documentHeader() == '<?xml version="1.0"?>'
@@ -328,3 +339,31 @@ def test_plain_stringables_are_still_frozen_to_text():
 
     result = div(Stringable()).render()
     assert "&lt;b&gt;x&lt;/b&gt;" in result or "<b>x</b>" in result
+
+
+def test_a_bool_child_renders_the_way_the_php_cast_does():
+    # A condition written straight into a child is common, so a `True` here
+    # must not print as the repr. `(string)true` is "1" and false is nothing.
+    assert div(True).render() == "<div>1</div>"
+    assert div(False).render() == "<div></div>"
+    assert div(True, True).render() == "<div>11</div>"
+    assert div(None).render() == "<div></div>"
+
+
+def test_a_float_child_drops_the_trailing_zero_str_would_add():
+    assert div(1.0).render() == "<div>1</div>"
+    assert div(0.0).render() == "<div>0</div>"
+    assert div(1.5).render() == "<div>1.5</div>"
+    assert div(1e15).render() == "<div>1.0E+15</div>"
+
+
+def test_a_float_attribute_is_written_at_the_php_precision():
+    assert div().title(0.0).render() == '<div title="0"></div>'
+    assert div().title(1.5).render() == '<div title="1.5"></div>'
+
+
+def test_a_bool_attribute_keeps_the_boolean_form():
+    # An attribute value is a different path from a child: `true` writes the
+    # name as its own value and `false` drops the attribute, as purephp does.
+    assert input().checked(True).render() == '<input checked="checked" />'
+    assert input().checked(False).render() == "<input />"

@@ -3,6 +3,7 @@ from typing import Any, Callable, Dict, List, Optional
 from ..compile.Compile import Compile
 from ..compile.Renderer import Renderer
 from ..compile.Shape import Shape
+from ..core.MissingSlotException import MissingSlotException
 
 
 class Registry:
@@ -11,7 +12,7 @@ class Registry:
     _keys: Dict[str, str] = {}
     _binders: Dict[str, Callable] = {}
     _renderers: Dict[str, Any] = {}
-    _shapes: Dict[str, Shape] = {}
+    _shapes: Dict[str, Any] = {}
 
     @staticmethod
     def register(
@@ -68,14 +69,15 @@ class Registry:
     @staticmethod
     def slots(name_or_path: str):
         key = Registry._key(name_or_path)
+        cached = Registry._binders.get(key)
 
-        if key not in Registry._renderers:
+        if cached is None or cached["generation"] != Compile.generation():
             Registry._binder(name_or_path)
+            cached = Registry._binders[key]
 
-        renderer = Registry._renderers.get(key)
-        if renderer is not None:
-            return renderer.slots
-        return None
+        renderer = cached["renderer"]
+
+        return None if renderer is None else renderer.slots
 
     @staticmethod
     def component(name_or_path: str) -> Callable[[Dict[str, Any]], str]:
@@ -105,8 +107,13 @@ class Registry:
     @staticmethod
     def _binder(name_or_path: str) -> Callable:
         key = Registry._key(name_or_path)
-        if key in Registry._binders:
-            return Registry._binders[key]
+        generation = Compile.generation()
+        cached = Registry._binders.get(key)
+
+        # A flushed generation invalidates the renderer, so every shape
+        # recompiles on next use instead of handing back a stale one.
+        if cached is not None and cached["generation"] == generation:
+            return cached["binder"]
 
         if key in Registry._units:
             renderer = Registry._unit_renderer(key)
@@ -116,10 +123,40 @@ class Registry:
         Registry._renderers[key] = renderer
 
         def binder(data: Dict[str, Any]) -> str:
-            return renderer.render(data)
+            try:
+                return renderer.render(data)
+            except (MissingSlotException, TypeError) as error:
+                # The renderer knows the slot contract, not who owns it: name
+                # the unit or template so one failing slot in a page of
+                # components is traceable from the message alone.
+                raise Registry.__with_context(error, key) from error
 
-        Registry._binders[key] = binder
+        Registry._binders[key] = {
+            "binder": binder,
+            "renderer": renderer,
+            "generation": generation,
+        }
+
         return binder
+
+    @staticmethod
+    def __with_context(error: Exception, key: str) -> Exception:
+        """Prefix a slot error with the component or template it came from.
+
+        The class is preserved (a MissingSlotException stays catchable), with
+        the original attached as the previous exception.
+        """
+        if key.startswith("path:"):
+            context = "template '{}'".format(key[len("path:") :])
+        else:
+            context = "component '{}'".format(key)
+
+        message = "{}: {}".format(context, error)
+
+        if isinstance(error, MissingSlotException):
+            return MissingSlotException(message)
+
+        return TypeError(message)
 
     @staticmethod
     def _unit_renderer(name: str) -> Renderer:
@@ -197,17 +234,40 @@ class Registry:
 
     @staticmethod
     def _shape(name: str) -> Shape:
-        if name in Registry._shapes:
-            return Registry._shapes[name]
+        generation = Compile.generation()
+        cached = Registry._shapes.get(name)
+
+        # A flushed generation recompiles the shape, so a factory whose result
+        # changed is picked up on next use.
+        if cached is not None and cached[1] == generation:
+            return cached[0]
+
         unit = Registry._units[name]
         result = unit["factory"]()
         shape = Compile.toShape(result)
+
         if shape is None:
             raise Exception(
                 "component '{}' factory must return a tag tree or Shape.".format(name)
             )
-        Registry._shapes[name] = shape
+
+        Registry._shapes[name] = (shape, generation)
         return shape
+
+    @staticmethod
+    def _hint() -> str:
+        """The registration context appended to an unresolved name or path.
+
+        Both the wording and the trailing period are part of the message, so the
+        sentence reads the way purephp's does: an empty registry is
+        `no components are registered`, not `known components: `.
+        """
+        known = Registry.names()
+
+        if not known:
+            return "no components are registered"
+
+        return "known components: " + ", ".join(known)
 
     @staticmethod
     def _key(name_or_path: str) -> str:
@@ -223,9 +283,7 @@ class Registry:
             Registry._keys[name_or_path] = key
             return key
         raise Exception(
-            "unknown component '{}'; known components: {}".format(
-                name_or_path, ", ".join(Registry._units.keys()) or "none"
-            )
+            "unknown component '{}'; {}.".format(name_or_path, Registry._hint())
         )
 
     @staticmethod

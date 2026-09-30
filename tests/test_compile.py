@@ -115,7 +115,7 @@ def test_required_slot_throws_with_full_path():
 
     with pytest.raises(
         MissingSlotException,
-        match="slot 'items.title' is required but was not provided.",
+        match=r"slot 'items\[\]\.title' is required but was not provided.",
     ):
         compiled.render({"items": [{}]})
 
@@ -130,9 +130,11 @@ def test_optional_slot_falls_back_to_default():
 def test_each_slot_renders_every_item():
     item = Compile.shape(li(Slot.value("title")))
     shape = Compile.shape(ul(Slot.each("items", item)).class_name("list"))
-    compiled = shape.compile()
 
-    assert compiled.source is not None
+    # The items are their own scope, so each one reads its own title.
+    assert shape({"items": [{"title": "a & b"}, {"title": "c"}]}) == (
+        '<ul class="list"><li>a &amp; b</li><li>c</li></ul>'
+    )
 
 
 def test_child_slot_uses_nested_data_scope():
@@ -147,9 +149,12 @@ def test_nested_each_slots_do_not_collide():
     cell = Compile.shape(td(Slot.value("v")))
     row = Compile.shape(tr(Slot.each("cells", cell)))
     shape = Compile.shape(table(Slot.each("rows", row)))
-    compiled = shape.compile()
 
-    assert compiled.source is not None
+    # The two list slots use different scopes, so the inner one reads the
+    # outer item's cells rather than the root data.
+    assert shape({"rows": [{"cells": [{"v": "a"}]}, {"cells": [{"v": "b"}]}]}) == (
+        "<table><tr><td>a</td></tr><tr><td>b</td></tr></table>"
+    )
 
 
 def test_invalid_utf8_is_substituted():
@@ -164,7 +169,7 @@ def test_non_stringable_slot_value_is_rejected():
     shape = Compile.shape(div(Slot.value("value")))
     compiled = shape.compile()
 
-    with pytest.raises(TypeError, match="slot 'value' must be stringable, list given."):
+    with pytest.raises(TypeError, match="slot 'value' must be stringable, array given."):
         compiled.render({"value": ["array"]})
 
 
@@ -173,7 +178,7 @@ def test_non_array_child_value_is_rejected():
     shape = Compile.shape(div(Slot.child("card", card)))
     compiled = shape.compile()
 
-    with pytest.raises(TypeError, match="slot 'card' must be an array, str given."):
+    with pytest.raises(TypeError, match="slot 'card' must be an array, string given."):
         compiled.render({"card": "not-an-array"})
 
 
@@ -182,8 +187,57 @@ def test_non_iterable_each_value_is_rejected():
     shape = Compile.shape(ul(Slot.each("items", item)))
     compiled = shape.compile()
 
-    with pytest.raises(TypeError, match="slot 'items' must be iterable, str given."):
+    with pytest.raises(TypeError, match="slot 'items' must be iterable, string given."):
         compiled.render({"items": "not-iterable"})
+
+
+def test_each_reads_any_iterable_the_way_a_php_array_is_read():
+    item = Compile.shape(li(Slot.value("title")))
+    compiled = Compile.shape(ul(Slot.each("items", item))).compile()
+
+    # is_iterable() takes a Traversable as readily as an array, so a tuple and a
+    # generator are as acceptable as a list.
+    assert compiled.render({"items": ["a", "b"]}) == "<ul><li>a</li><li>b</li></ul>"
+    assert compiled.render({"items": ("a", "b")}) == "<ul><li>a</li><li>b</li></ul>"
+    assert compiled.render({"items": (x for x in ["a", "b"])}) == (
+        "<ul><li>a</li><li>b</li></ul>"
+    )
+
+
+def test_each_reads_the_values_of_a_mapping_not_its_keys():
+    item = Compile.shape(li(Slot.value("title")))
+    compiled = Compile.shape(ul(Slot.each("items", item))).compile()
+
+    # Iterating the equivalent PHP array yields its values, so a mapping does
+    # too; reading its keys would silently render the wrong document.
+    assert compiled.render({"items": {"k1": "a", "k2": "b"}}) == (
+        "<ul><li>a</li><li>b</li></ul>"
+    )
+
+
+def test_a_null_each_or_child_value_is_reported_by_the_helper():
+    # A child or each slot is read with the key-presence rule rather than the
+    # null rule a text slot uses, so an explicit null reaches scope()/items()
+    # and is named there. Only a missing key is the missing-slot error.
+    each = Compile.shape(ul(Slot.each("items", li(Slot.value("t"))))).compile()
+    child_card = Compile.shape(div(Slot.value("name")))
+    child = Compile.shape(div(Slot.child("card", child_card))).compile()
+
+    with pytest.raises(TypeError, match="slot 'items' must be iterable, null given."):
+        each.render({"items": None})
+
+    with pytest.raises(TypeError, match="slot 'card' must be an array, null given."):
+        child.render({"card": None})
+
+    with pytest.raises(
+        MissingSlotException, match="slot 'items' is required but was not provided."
+    ):
+        each.render({})
+
+    with pytest.raises(
+        MissingSlotException, match="slot 'card' is required but was not provided."
+    ):
+        child.render({})
 
 
 def test_value_slot_is_valid_in_both_child_and_attribute_position():
@@ -192,12 +246,6 @@ def test_value_slot_is_valid_in_both_child_and_attribute_position():
 
     assert "data.get" in child.compile().source
     assert "data.get" in attr.compile().source
-
-
-def test_raw_slot_in_attribute_position_is_rejected():
-    shape = Compile.shape(div("x").class_name(Slot.raw("r")))
-    compiled = shape.compile()
-    assert compiled.source is not None
 
 
 def test_value_slot_attribute_semantics():
@@ -428,7 +476,7 @@ def test_raw_slot_element_must_be_stringable():
     compiled = shape.compile()
 
     with pytest.raises(
-        TypeError, match="slot 'body\\[1\\]' must be stringable, list given."
+        TypeError, match="slot 'body\\[1\\]' must be stringable, array given."
     ):
         compiled.render({"body": ["a", ["nested"]]})
 

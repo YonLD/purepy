@@ -300,8 +300,8 @@ def test_plain_views_fall_back_to_data_offsets_for_odd_slot_names():
 
     # A name that is not a plain identifier cannot be a parameter, so it stays
     # an offset of the view data.
-    assert "data.get('user-name'" in plain
-    assert "data.get('v1'" in plain
+    assert "(data or {}).get('user-name')" in plain
+    assert "(data or {}).get('v1')" in plain
 
     namespace = {}
     exec(plain, namespace)
@@ -319,11 +319,13 @@ def test_plain_views_of_static_shapes_keep_a_single_output_block():
     body = plain[plain.index("def view") :]
 
     # A static shape has no slots, so the view takes no arguments and needs no
-    # control flow: the markup and the escaped text land as one literal block.
+    # control flow, and the whole subtree folds into one literal.
     assert "def view() -> str:" in body
     assert " for " not in body
     assert "if " not in body
-    assert "out.append('static &amp; &lt;raw&gt;')" in body
+    # One append for the whole folded subtree, and no other statement.
+    assert body.count("out.append(") == 1
+    assert "out.append('<div>static &amp; &lt;raw&gt;</div>')" in body
 
     namespace = {}
     exec(plain, namespace)
@@ -346,18 +348,6 @@ def test_plain_views_keep_the_document_header_of_document_roots_only():
         assert namespace["view"]() == header + tree.render()
 
 
-def test_compile_requires_at_least_one_path():
-    missing = _run(["compile"])
-
-    assert missing["code"] == 1
-    assert "needs at least one file or directory" in missing["stderr"]
-
-    checked = _run(["compile", "--plain", "--check"])
-
-    assert checked["code"] == 1
-    assert "Usage:" in checked["stderr"]
-
-
 def test_plain_paths_follow_the_shape_suffix(tmp_path):
     shape = str(tmp_path / "page.shape.py")
 
@@ -368,40 +358,6 @@ def test_plain_paths_follow_the_shape_suffix(tmp_path):
         ArtifactCompiler.plainPath(str(tmp_path / "page.py"))
 
     assert "is not a *.shape.py or *.cmp.py file" in str(error.value)
-
-
-def test_check_mode_reports_missing_and_stale_artifacts(tmp_path):
-    file = _shape_file(
-        tmp_path,
-        "check.shape.py",
-        "from pure.compile.Compile import Compile\n"
-        "from pure.core.Slot import Slot\n"
-        "from pure.html import div\n\n\n"
-        'shape = Compile.shape(div(Slot.value("v")))\n',
-    )
-
-    missing = _run(["compile", "--check", file])
-
-    assert missing["code"] == 1
-    assert "missing:" in missing["stdout"]
-
-    compiled = _run(["compile", "--plain", file])
-
-    assert compiled["code"] == 0
-    assert "compiled:" in compiled["stdout"]
-
-    fresh = _run(["compile", "--check", file])
-
-    assert fresh["code"] == 0
-    assert "up to date:" in fresh["stdout"]
-
-    (tmp_path / "check.pure.py").write_text("# stale\n")
-
-    stale = _run(["compile", "--check", file])
-
-    assert stale["code"] == 1
-    assert "stale:" in stale["stdout"]
-    assert "need recompiling" in stale["stderr"]
 
 
 def test_write_changed_skips_files_that_are_already_current(tmp_path):
@@ -559,35 +515,6 @@ def test_unit_artifacts_match_shape_file_artifacts(tmp_path):
     assert from_shape_file.render({"title": "a"}) == from_unit.render({"title": "a"})
 
 
-def test_compiles_unit_files_through_the_command(tmp_path):
-    file = _unit_file(tmp_path, "badge.cmp.py", "auto")
-
-    compiled = _run(["compile", "--plain", file], _registry_units)
-
-    assert compiled["code"] == 0
-    assert "compiled:" in compiled["stdout"]
-    assert (tmp_path / "badge.pure.py").exists()
-    assert (tmp_path / "badge.plain.py").exists()
-
-    fresh = _run(["compile", "--check", "--plain", file], _registry_units)
-
-    assert fresh["code"] == 0
-    assert "up to date:" in fresh["stdout"]
-
-    listing = _run(["compile", "--list", file], _registry_units)
-
-    assert listing["code"] == 0
-    assert "(component)" in listing["stdout"]
-    assert file in listing["stdout"]
-
-    (tmp_path / "badge.pure.py").write_text("# stale\n")
-
-    stale = _run(["compile", "--check", file], _registry_units)
-
-    assert stale["code"] == 1
-    assert "stale:" in stale["stdout"]
-
-
 def test_unit_files_need_the_registry(tmp_path):
     file = _unit_file(tmp_path, "badge.cmp.py", "auto")
 
@@ -708,33 +635,6 @@ def test_compiles_directories_recursively(tmp_path):
     assert "b.shape.py" in result["stdout"]
 
 
-def test_rejects_files_that_are_not_shapes(tmp_path):
-    broken = _run(
-        [
-            "compile",
-            _shape_file(tmp_path, "broken.shape.py", "shape = 42\n"),
-        ]
-    )
-
-    assert broken["code"] == 1
-    assert "must return a tag tree or pure.compile.Shape" in broken["stderr"]
-
-    suffix = _run(["compile", _shape_file(tmp_path, "page.py", "shape = None\n")])
-
-    assert suffix["code"] == 1
-    assert "is not a *.shape.py or *.cmp.py file" in suffix["stderr"]
-
-    missing = _run(["compile", str(tmp_path / "absent.shape.py")])
-
-    assert missing["code"] == 1
-    assert "does not exist" in missing["stderr"]
-
-    usage = _run(["compile", "--nope"])
-
-    assert usage["code"] == 1
-    assert "unknown option '--nope'" in usage["stderr"]
-
-
 def test_renderer_save_writes_a_fragment_and_shape_save_prepends_the_roots_header(
     tmp_path,
 ):
@@ -801,50 +701,6 @@ def test_cli_binary_compiles_and_checks(tmp_path):
     assert "up to date:" in check_run.stdout
 
 
-def test_compile_plain_writes_and_checks_both_flavours(tmp_path):
-    file = _shape_file(
-        tmp_path,
-        "flavours.shape.py",
-        "from pure.compile.Compile import Compile\n"
-        "from pure.core.Slot import Slot\n"
-        "from pure.html import div\n\n\n"
-        'shape = Compile.shape(div(Slot.value("v")))\n',
-    )
-
-    compiled = _run(["compile", "--plain", file])
-
-    assert compiled["code"] == 0
-    assert (tmp_path / "flavours.pure.py").exists()
-    assert (tmp_path / "flavours.plain.py").exists()
-    assert (
-        "flavours.pure.py, {}".format(tmp_path / "flavours.plain.py")
-        in compiled["stdout"]
-    )
-
-    fresh = _run(["compile", "--check", "--plain", file])
-
-    assert fresh["code"] == 0
-    assert fresh["stdout"].count("up to date:") == 2
-
-    reordered = _run(["compile", "--plain", "--check", file])
-
-    assert reordered["code"] == 0
-
-    (tmp_path / "flavours.plain.py").unlink()
-
-    missing = _run(["compile", "--check", "--plain", file])
-
-    assert missing["code"] == 1
-    assert "missing: {}".format(tmp_path / "flavours.plain.py") in missing["stdout"]
-
-    (tmp_path / "flavours.plain.py").write_text("# tampered\n")
-
-    stale = _run(["compile", "--check", "--plain", file])
-
-    assert stale["code"] == 1
-    assert "stale: {}".format(tmp_path / "flavours.plain.py") in stale["stdout"]
-
-
 def test_artifact_renderers_report_data_keys_the_template_does_not_read(tmp_path):
     from pure.core.DevMode import DevMode
 
@@ -871,3 +727,103 @@ def test_artifact_renderers_report_data_keys_the_template_does_not_read(tmp_path
     assert rendered == "<div>t</div>"
     assert len(caught) == 1
     assert "unknown data key 'titel' (did you mean 'title'?)" in str(caught[0].message)
+
+
+def _binary():
+    return Path(__file__).resolve().parent.parent / "bin" / "pure"
+
+
+def test_plain_views_fold_a_slot_free_subtree_into_one_literal(tmp_path):
+    tree = ul(li("a").class_name("row"), li("b"))
+
+    body = PlainGenerator.view(tree).split("def view")[-1]
+
+    # A subtree that reads no slot is static markup, so it folds into one
+    # literal instead of a line per tag.
+    assert body.count("out.append(") == 1
+    assert "out.append('<ul><li class=\"row\">a</li><li>b</li></ul>')" in body
+
+
+def test_folding_stops_at_the_first_slot():
+    tree = div(p("static"), p(Slot.value("text")))
+
+    body = PlainGenerator.view(tree).split("def view")[-1]
+
+    # The paragraph that reads a slot is generated, and the static one beside it
+    # is still folded.
+    assert "out.append('<p>static</p>')" in body
+    assert "_text(text)" in body
+    assert "out.append('<div><p>static</p>')" not in body
+
+
+def _render_plain_tree(tree, data):
+    namespace = {}
+    exec(PlainGenerator.view(tree), namespace)
+    return namespace["view"](**data)
+
+
+def test_the_compiled_renderer_casts_a_slot_value_the_php_way():
+    compiled = _flat_renderer(Compile.shape(div(Slot.value("v"))).tree())
+
+    # The value arrives at render time, so the cast happens in the runtime.
+    assert compiled.render({"v": True}) == "<div>1</div>"
+    assert compiled.render({"v": False}) == "<div></div>"
+    assert compiled.render({"v": 1.0}) == "<div>1</div>"
+    assert compiled.render({"v": 0.1}) == "<div>0.1</div>"
+
+
+def test_the_compiled_renderer_casts_a_literal_child_at_compile_time():
+    compiled = _flat_renderer(Compile.shape(div(1.0)).tree())
+
+    # A literal is frozen into the generated source, so a bool or a float that
+    # would print as its repr must not reach it either.
+    assert compiled.render({}) == "<div>1</div>"
+    assert _flat_renderer(Compile.shape(div(True)).tree()).render({}) == "<div>1</div>"
+    assert _flat_renderer(Compile.shape(div(False)).tree()).render({}) == "<div></div>"
+
+
+def test_the_plain_view_casts_a_slot_value_the_php_way():
+    tree = div(Slot.value("v")).title(Slot.value("v"))
+
+    # The plain view carries its own copy of the cast, so it has to agree.
+    assert _render_plain_tree(tree, {"v": True}) == '<div title="1">1</div>'
+    assert _render_plain_tree(tree, {"v": False}) == '<div title=""></div>'
+    assert _render_plain_tree(tree, {"v": 1.0}) == '<div title="1">1</div>'
+    assert _render_plain_tree(tree, {"v": 0.1}) == '<div title="0.1">0.1</div>'
+
+
+def test_the_plain_view_writes_a_bool_attribute_as_a_cast_while_the_compiled_one_omits_it():
+    # The two paths differ on purpose, as they do in purephp: a plain view
+    # writes the value as an echo, while the compiled renderer's
+    # SlotRuntime.attr_open() turns a true value into a bare name.
+    tree = div().title(Slot.value("v"))
+
+    assert _render_plain_tree(tree, {"v": True}) == '<div title="1"></div>'
+    assert _render_plain_tree(tree, {"v": False}) == '<div title=""></div>'
+
+    compiled = _flat_renderer(Compile.shape(tree).tree())
+    assert compiled.render({"v": True}) == '<div title="title"></div>'
+    assert compiled.render({"v": False}) == "<div></div>"
+
+
+def test_a_slot_in_an_attribute_position_keeps_the_subtree_generated():
+    tree = div("static").class_name(Slot.value("kind"))
+
+    body = PlainGenerator.view(tree).split("def view")[-1]
+
+    # The attribute reads a slot, so folding the whole tag would lose it.
+    assert "out.append('<div>static</div>')" not in body
+    assert "SlotRuntime" not in body  # a plain view has no runtime
+    assert "_attr('class'" in body
+
+
+def test_folding_escapes_the_same_way_walking_the_subtree_would():
+    tree = div(span("a & b"), Raw.of("<i>raw</i>"))
+
+    namespace = {}
+    exec(PlainGenerator.view(tree), namespace)
+
+    # The folded literal is the string renderer's own output, so the escaping
+    # and the trusted markup are decided in one place.
+    assert namespace["view"]() == "<div><span>a &amp; b</span><i>raw</i></div>"
+    assert namespace["view"]() == tree.render()

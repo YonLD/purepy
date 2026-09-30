@@ -1,10 +1,10 @@
 from typing import Union, Tuple
 
 from .Raw import Raw
-from .Tag import Tag
+from .Tag import Tag, TagFactory
 
 
-class XML(Tag):
+class XML(Tag, metaclass=TagFactory):
     DOCUMENT_HEADER = '<?xml version="1.0"?>'
 
     def __init__(self, tag_name: str, children: Tuple[Union[str, Raw, Tag], ...] = ()):

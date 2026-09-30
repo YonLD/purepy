@@ -81,7 +81,7 @@ class CodeGenerator:
                 out.append(
                     pad
                     + "out.append(' ' + {!r} + '=\"' + {!r} + '\"')".format(
-                        key, Escaper.attr(str(value))
+                        key, Escaper.attr(Escaper.to_string(value))
                     )
                 )
 
@@ -101,6 +101,15 @@ class CodeGenerator:
         slot_path = CodeGenerator.__join(path, slot.name)
         required = bool(slot.is_required)
         default = repr(slot.default_value)
+
+        # Only a value slot carries a single rendered value; any other kind
+        # would silently lose its shape here, so it is rejected the way a plain
+        # view rejects it.
+        if slot.kind != SlotKind.Value:
+            from .CompileException import CompileException
+
+            raise CompileException.slot_in_attribute_position(slot.kind, slot_path)
+
         return [
             pad
             + "out.append(SlotRuntime.attr_open({0!r}, _req({1}.get({2!r}), {3!r}, {1}, {4}, {5}), {3!r}))".format(  # noqa: E501
@@ -118,15 +127,17 @@ class CodeGenerator:
             return CodeGenerator.__node(child, scope, path, depth, counter)
 
         if isinstance(child, Raw):
-            return [pad + "out.append({})".format(repr(str(child)))]
+            return [pad + "out.append({})".format(repr(Escaper.to_string(child)))]
 
         if isinstance(child, Markup):
-            return [pad + "out.append(str({}))".format(repr(str(child)))]
+            return [pad + "out.append(str({}))".format(repr(Escaper.to_string(child)))]
 
         if isinstance(child, Slot):
             return CodeGenerator.__slot(child, scope, path, depth, counter)
 
-        return [pad + "out.append({})".format(repr(Escaper.text(str(child))))]
+        return [
+            pad + "out.append({})".format(repr(Escaper.text(Escaper.to_string(child))))
+        ]
 
     @staticmethod
     def __slot(
@@ -173,47 +184,75 @@ class CodeGenerator:
         index = counter[0]
         counter[0] += 1
 
-        if helper == "scope":
-            inner = "v{}".format(index)
-            out = [
-                pad
-                + "if _req({0}.get({1!r}), {2!r}, {0}, True, None) is None:".format(
-                    scope, slot.name, slot_path
-                ),
+        # A child or each slot is read with the key-presence rule rather than
+        # the null rule a text slot uses: a missing key is the missing-slot
+        # error, while an explicit null is left to scope()/items() to report,
+        # which is why `each(null)` says the value is not iterable rather than
+        # that it was null. See RendererGenerator::valueAccess().
+        if slot.is_required:
+            guard = [
+                pad + "if {1!r} not in {0}:".format(scope, slot.name),
                 CodeGenerator.__indent(depth + 1)
                 + "raise MissingSlotException.for_path({0!r}, {1})".format(
                     slot_path, scope
                 ),
+            ]
+            access = "{0}.get({1!r})".format(scope, slot.name)
+        else:
+            guard = []
+            access = "_req({0}.get({1!r}), {2!r}, {0}, False, {3!r})".format(
+                scope, slot.name, slot_path, slot.default_value
+            )
+
+        if helper == "scope":
+            inner = "v{}".format(index)
+            out = guard + [
                 pad
-                + "{0} = SlotRuntime.scope({1}.get({2!r}), {3!r})".format(
-                    inner, scope, slot.name, slot_path
+                + "{0} = SlotRuntime.scope({1}, {2!r})".format(
+                    inner, access, slot_path
                 ),
             ]
         else:
             inner = "i{}".format(index)
-            out = [
+            # The item shape decides how much of an item the scope needs: a
+            # shape that renders one key binds a scalar item to that key, so a
+            # list of strings renders without a one-key map per item, while any
+            # other shape takes the item itself as the scope and names the keys
+            # it reads when the item is not one.
+            manifest = RootSlots.itemManifest(slot.shape)
+            key = RootSlots.itemKey(manifest)
+
+            if key is None:
+                hint = RootSlots.itemHint(manifest)
+                item = "_slot"
+            else:
+                # A mapping item is a scope of its own, so both forms render.
+                item = "(_slot if isinstance(_slot, dict) else {{'{}': _slot}})".format(  # noqa: E501
+                    key
+                )
+                hint = ""
+
+            out = guard + [
                 pad
-                + "if _req({0}.get({1!r}), {2!r}, {0}, True, None) is None:".format(
-                    scope, slot.name, slot_path
+                + "for _slot in SlotRuntime.items({0}, {1!r}):".format(
+                    access, slot_path
                 ),
                 CodeGenerator.__indent(depth + 1)
-                + "raise MissingSlotException.for_path({0!r}, {1})".format(
-                    slot_path, scope
+                + "{0} = SlotRuntime.scope({1}, {2!r}, {3!r})".format(
+                    inner, item, slot_path + "[]", hint
                 ),
-                pad
-                + "for _slot in SlotRuntime.items(_req({0}.get({1!r}), {2!r}, {0}, True, None), {2!r}):".format(  # noqa: E501
-                    scope, slot.name, slot_path
-                ),
-                CodeGenerator.__indent(depth + 1) + "{0} = _slot".format(inner),
             ]
 
         if slot.shape is not None:
             # A child scope is a plain binding, so its body sits at this level;
             # an each() loop introduced a block, so its body is one level in.
+            # The items of a list are reported with the "[]" suffix, so a failing
+            # item names itself the way the caller wrote it.
             body_depth = depth if helper == "scope" else depth + 1
+            body_path = slot_path if helper == "scope" else slot_path + "[]"
             out.extend(
                 CodeGenerator.__node(
-                    slot.shape.tree(), inner, slot_path, body_depth, counter
+                    slot.shape.tree(), inner, body_path, body_depth, counter
                 )
             )
 

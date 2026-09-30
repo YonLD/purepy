@@ -3,7 +3,6 @@ from .HTML import HTML
 from .SVG import SVG
 from .XML import XML
 from .Raw import Raw
-from .Dom import Dom
 from .Escaper import Escaper
 from .Markup import Markup
 from .Slot import Slot
@@ -17,7 +16,6 @@ __all__ = [
     "SVG",
     "XML",
     "Raw",
-    "Dom",
     "Escaper",
     "Markup",
     "Slot",

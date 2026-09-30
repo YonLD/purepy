@@ -1,7 +1,7 @@
 from typing import Union, Tuple
 
 from .Raw import Raw
-from .Tag import Tag
+from .Tag import Tag, TagFactory
 
 SELF_CLOSE_HTML_TAGS = {
     "area",
@@ -20,7 +20,7 @@ SELF_CLOSE_HTML_TAGS = {
 }
 
 
-class HTML(Tag):
+class HTML(Tag, metaclass=TagFactory):
     DOCUMENT_HEADER = "<!DOCTYPE html>"
 
     def __init__(self, tag_name: str, children: Tuple[Union[str, Raw, Tag], ...] = ()):

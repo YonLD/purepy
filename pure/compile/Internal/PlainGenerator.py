@@ -1,11 +1,15 @@
 import re
+import weakref
 from typing import Any, List, Optional
 
 from ...core.Tag import Tag
 from ...core.Slot import Slot
 from ...core.SlotKind import SlotKind
 from ...core.Escaper import Escaper
+from ...core.Markup import Markup
+from ...core.Raw import Raw
 from .CompileException import CompileException
+from .RootSlots import RootSlots
 from .ScopeTypes import ScopeTypes
 
 # Slot names the plain view reserves for itself: the ones ScopeTypes would
@@ -14,22 +18,63 @@ RESERVED = frozenset({"self", "globals", "data", "kind", "out", "view"})
 
 _AUTO_LOCAL = re.compile(r"^(item|v|kind)\d+$")
 
-PRELUDE = '''from html import escape as _escape
-from typing import Any, Dict, Iterable, List, Optional
+# Per-compile memo of has_slots(), keyed weakly by the tag so a finished compile
+# does not keep a shape alive. view() installs a fresh one per tree.
+_SLOT_CACHE = weakref.WeakKeyDictionary()
+
+PRELUDE = '''from collections.abc import Mapping
+from html import escape as _escape
+from typing import Any, Dict, Iterable, List, Optional, Union
+
+
+def _str(value):
+    """Coerce a value to text the way the PHP (string) cast does.
+
+    A bool renders as "1" or nothing rather than its repr, and a float is
+    written at PHP's precision of 14 significant digits in %G notation, which
+    switches to an exponent outside 1e-4..1e14 and keeps one digit after the
+    point there. This is a copy of Pure\\\\Core\\\\Escaper::to_string(), so a plain
+    view renders the same bytes as the compiled renderer.
+    """
+    if value is None:
+        return ''
+    if value is True:
+        return '1'
+    if value is False:
+        return ''
+    if isinstance(value, float):
+        if value != value:
+            return 'NAN'
+        if value == float('inf'):
+            return 'INF'
+        if value == float('-inf'):
+            return '-INF'
+        text = '%.*G' % (14, value)
+        if 'E' in text:
+            mantissa, _, exponent = text.partition('E')
+            if '.' not in mantissa:
+                mantissa += '.0'
+            sign, digits = exponent[0], (exponent[1:].lstrip('0') or '0')
+            text = mantissa + 'E' + sign + digits
+        return text
+    return str(value)
 
 
 def _text(value):
     """Escape a value for a text position, like the compiled renderer."""
-    return '' if value is None else _escape(str(value), quote=False)
+    return _escape(_str(value), quote=False)
 
 
 def _attr(name, value):
-    """Build one name="value" chunk, omitted for a null value."""
-    if value is None or value is False:
-        return ''
-    if value is True:
-        return ' ' + name + '="' + name + '"'
-    return ' ' + name + '="' + _escape(str(value), quote=True) + '"'
+    """Build one name="value" chunk.
+
+    A plain view writes the value as an echo, the way a hand-written view does,
+    so the value is cast and escaped like any other and a null one writes an
+    empty string rather than dropping the attribute. That is what purephp's
+    plain view emits, and it differs from the compiled renderer on purpose:
+    there, SlotRuntime.attr_open() turns a true value into a bare name.
+    """
+    return ' ' + name + '="' + _escape(_str(value), quote=True) + '"'
 
 
 def _raw(value):
@@ -37,8 +82,24 @@ def _raw(value):
     if value is None:
         return ''
     if isinstance(value, Iterable) and not isinstance(value, (str, bytes)):
-        return ''.join('' if v is None else str(v) for v in value)
-    return str(value)
+        return ''.join(_str(v) for v in value)
+    return _str(value)
+
+
+def _items(value):
+    """Read a list slot the way the compiled renderer does.
+
+    A mapping yields its values, as iterating the equivalent PHP array does,
+    and a string is not iterable even though Python can step it. This is a
+    copy of Pure\\\\Compile\\\\Internal\\\\SlotRuntime::items().
+    """
+    if value is None:
+        return ()
+    if isinstance(value, Mapping):
+        return value.values()
+    if isinstance(value, Iterable) and not isinstance(value, (str, bytes)):
+        return value
+    return value
 '''
 
 
@@ -60,6 +121,10 @@ class PlainGenerator:
 
     @staticmethod
     def view(tree: Tag) -> str:
+        # A fresh memo per compile, so a shape rebuilt from the same tags is
+        # still analyzed against its own subtree.
+        PlainGenerator._SLOT_CACHE = weakref.WeakKeyDictionary()
+
         counter = [0]
         body = PlainGenerator.__node(tree, "", "", 1, counter)
         lines = [ScopeTypes.signature(tree), "    out = []"]
@@ -86,9 +151,43 @@ class PlainGenerator:
         if scope == "" and PlainGenerator.local(name) is not None:
             return ScopeTypes.parameter(name)
 
-        target = "data" if scope == "" else scope
+        if scope != "":
+            return "{}.get({})".format(scope, repr(name))
 
-        return "{}.get({})".format(target, repr(name))
+        # The root offsets share one mapping, which is None when the view was
+        # called with only its named parameters.
+        return "(data or {{}}).get({!r})".format(name)
+
+    @staticmethod
+    def has_slots(tag: Tag) -> bool:
+        """Whether the subtree reads any slot.
+
+        Memoized per tag: without the cache this walks every descendant again
+        for each ancestor, and compile time turns quadratic on a deep tree.
+        """
+        cached = PlainGenerator._SLOT_CACHE.get(tag)
+
+        if cached is not None:
+            return cached
+
+        found = False
+
+        for value in tag.get_attrs().values():
+            if isinstance(value, Slot):
+                found = True
+                break
+
+        if not found:
+            for child in tag.get_children():
+                if isinstance(child, Slot) or (
+                    isinstance(child, Tag) and PlainGenerator.has_slots(child)
+                ):
+                    found = True
+                    break
+
+        PlainGenerator._SLOT_CACHE[tag] = found
+
+        return found
 
     @staticmethod
     def local(name: str) -> Optional[str]:
@@ -128,7 +227,12 @@ class PlainGenerator:
         pad = PlainGenerator.__indent(depth)
 
         if not isinstance(value, Slot):
-            return [pad + "out.append(_attr({0!r}, {1!r}))".format(key, str(value))]
+            return [
+                pad
+                + "out.append(_attr({0!r}, {1!r}))".format(
+                    key, Escaper.to_string(value)
+                )
+            ]
 
         if value.kind != SlotKind.Value:
             raise CompileException.slot_in_attribute_position(value.kind, slot_path)
@@ -145,6 +249,14 @@ class PlainGenerator:
         tag: Tag, scope: str, path: str, depth: int, counter: List[int]
     ) -> List[str]:
         pad = PlainGenerator.__indent(depth)
+
+        # A slot-free subtree is static markup: its output is fully known at
+        # compile time, so it folds into one literal instead of a line per tag.
+        # The string renderer owns the escaping, so folding is byte-identical
+        # to walking the subtree.
+        if not PlainGenerator.has_slots(tag):
+            return [pad + "out.append({})".format(repr(tag.render()))]
+
         out = [pad + "out.append({})".format(repr("<" + tag.get_tag_name()))]
 
         for key, value in tag.get_attrs().items():
@@ -176,7 +288,15 @@ class PlainGenerator:
         if isinstance(child, Slot):
             return PlainGenerator.__slot(child, scope, path, depth, counter)
 
-        return [pad + "out.append({})".format(repr(Escaper.text(str(child))))]
+        # Raw and Markup are already-rendered output the caller vouched for, so
+        # a plain view emits them verbatim instead of escaping them the way it
+        # escapes a plain string.
+        if isinstance(child, (Raw, Markup)):
+            return [pad + "out.append({})".format(repr(Escaper.to_string(child)))]
+
+        return [
+            pad + "out.append({})".format(repr(Escaper.text(Escaper.to_string(child))))
+        ]
 
     @staticmethod
     def __slot(
@@ -219,24 +339,35 @@ class PlainGenerator:
             if slot.kind == SlotKind.Child:
                 out = [pad + "{} = {}".format(inner, access)]
                 body_depth = depth
+                body_path = slot_path
             else:
-                out = [pad + "for {} in ({} or ()):".format(inner, access)]
-                out.append(
-                    PlainGenerator.__indent(depth + 1) + "{} = {}".format(inner, inner)
-                )
+                out = [pad + "for {} in _items({}):".format(inner, access)]
+
+                # The runtime binds a scalar item to the one key an item shape
+                # renders; a plain view has no runtime, so it does the same with
+                # plain Python and stays byte-identical for the data both forms
+                # accept.
+                key = RootSlots.itemKey(RootSlots.itemManifest(slot.shape))
+
+                if key is not None:
+                    out.append(
+                        PlainGenerator.__indent(depth + 1)
+                        + (
+                            "{0} = {0} if isinstance({0}, dict) "
+                            "else {{{1!r}: {0}}}".format(inner, key)
+                        )
+                    )
+
                 body_depth = depth + 1
+                body_path = slot_path + "[]"
 
             if slot.shape is not None:
                 out.extend(
                     PlainGenerator.__node(
-                        slot.shape.tree(), inner, slot_path, body_depth, counter
+                        slot.shape.tree(), inner, body_path, body_depth, counter
                     )
                 )
 
             return out
 
         return []
-
-    @staticmethod
-    def document(tree: Tag) -> str:
-        return tree.documentHeader() if tree.isDocumentRoot() else ""

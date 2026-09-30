@@ -1,8 +1,11 @@
 import importlib
 import inspect
 
+import pytest
+
 from pure.core.HTML import HTML
 from pure.core.SVG import SVG
+from pure.core.XML import XML
 
 HTML_FUNCTIONS = [
     "a",
@@ -243,3 +246,42 @@ def test_every_svg_factory_creates_its_tag():
         assert element.get_self_close() == (
             tag in SELF_CLOSE_SVG_TAGS
         ), f"{name}() self-close flag"
+
+
+def test_a_tag_class_builds_an_element_by_reading_its_name():
+    # purephp reaches the same element through `__callStatic`, so a static
+    # read on the class is the mirror of a module-level function.
+    assert HTML.div("hi").render() == "<div>hi</div>"
+    assert SVG.circle("hi").render() == "<circle>hi</circle>"
+    assert XML.row("hi").render() == "<row>hi</row>"
+
+    from pure.html import div
+
+    assert HTML.div("hi").render() == div("hi").render()
+
+
+def test_a_custom_element_needs_no_declaration():
+    # A magic static call needs no entry either, so a tag the library does not
+    # know is still constructible. An unknown name is not a void element either,
+    # so it keeps its closing tag the way `SVG.circle()` does not.
+    assert HTML.myWidget("x").render() == "<myWidget>x</myWidget>"
+    assert SVG.myShape().render() == "<myShape></myShape>"
+
+
+def test_a_static_element_behaves_like_the_function_one():
+    assert HTML.br().render() == "<br />"
+    assert HTML.div("a", "b").render() == "<div>ab</div>"
+    assert HTML.div().render() == "<div></div>"
+    assert HTML.a("x").href("/y").render() == '<a href="/y">x</a>'
+    # The cast the class inherits applies here too.
+    assert HTML.div(True).render() == "<div>1</div>"
+
+
+def test_an_underscored_name_is_not_an_element():
+    # The machinery Python probes for (copy, pickle, the ABC registry) reads
+    # underscored attributes, and each has to keep raising AttributeError
+    # instead of building an element named after it.
+    for cls in (HTML, SVG, XML):
+        with pytest.raises(AttributeError):
+            getattr(cls, "_missing_")
+

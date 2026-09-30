@@ -1,5 +1,4 @@
 import inspect
-import re
 from typing import Dict
 
 from ...core.DevMode import DevMode
@@ -54,18 +53,3 @@ class ShapeGuard:
         # `Compile.guard(...)` wins, and only an unset switch consults (and
         # then caches) the environment.
         return DevMode.enabled if DevMode.enabled is not None else DevMode.resolve()
-
-    @staticmethod
-    def _local(name: str):
-        if not re.match(r"^[A-Za-z_][A-Za-z0-9_]*$", name):
-            return None
-
-        lower = name.lower()
-
-        if lower in ShapeGuard._RESERVED:
-            return None
-
-        if lower.startswith("pure") or re.match(r"^(item|v|kind)\d+$", lower):
-            return None
-
-        return name

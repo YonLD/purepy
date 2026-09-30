@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import keyword
-from abc import ABC
-from typing import Any, Union, List, Dict, Tuple, Callable, Optional
+from abc import ABC, ABCMeta
+from typing import Any, Union, List, Dict, Tuple, Optional
 
 from .Raw import Raw
 from .Slot import Slot
@@ -10,6 +10,33 @@ from .Markup import Markup
 from .Escaper import Escaper
 from .DevMode import DevMode
 from .AttributeNames import AttributeNames
+
+
+class TagFactory(ABCMeta):
+    """The static tag constructors purephp reaches through `__callStatic`.
+
+    Reading any other attribute off a tag class builds an element of that name,
+    so `HTML.div('x')` and the module-level `div('x')` are the same element,
+    and a custom element needs no declaration the way a magic static call does
+    not need one in PHP either.
+
+    It derives from `ABCMeta` rather than `type` because `Tag` is an abstract
+    base class, and a subclass of an ABC may only use a metaclass derived from
+    the one its base uses.
+
+    An attribute that starts with an underscore is left alone, so the
+    machinery Python probes for (copy, pickle, the ABC registry) still finds a
+    real `AttributeError` instead of an element named after it.
+    """
+
+    def __getattr__(cls, tag: str):
+        if tag.startswith("_"):
+            raise AttributeError(tag)
+
+        def build(*children: Any):
+            return cls(tag, children)
+
+        return build
 
 
 class Tag(ABC):
@@ -152,16 +179,9 @@ class Tag(ABC):
             if value is not None and not isinstance(
                 value, (str, bool, int, float, Slot)
             ):
-                value = str(value)
+                value = Escaper.to_string(value)
             self.__set_attr(key, value)
         return self
-
-    def set_attr_by_cb(self, key: str, callback: Callable) -> None:
-        value = callback(self.get_attr(key))
-        if value is None and key in self.__attrs:
-            del self.__attrs[key]
-        elif value is not None:
-            self.__attrs[key] = value
 
     def __set_attr(self, key: str, value: Union[str, bool, Slot, None]) -> Tag:
         if value is None:
@@ -189,10 +209,10 @@ class Tag(ABC):
             raise Exception(
                 "Element '{}' attribute '{}' must be a scalar, Stringable, Slot or null, "  # noqa: E501
                 "{} given; use class()/style() for arrays.".format(
-                    self.__tag_name, key, type(value).__name__
+                    self.__tag_name, key, Escaper.debug_type(value)
                 )
             )
-        self.__attrs[key] = str(value)
+        self.__attrs[key] = Escaper.to_string(value)
         return self
 
     def __append_children(
@@ -214,10 +234,12 @@ class Tag(ABC):
         if isinstance(child, (str, Markup, Tag, Slot)):
             self.__children.append(child)
             return
-        if hasattr(child, "__str__") and child.__class__.__str__ is not object.__str__:
-            self.__children.append(child)
-            return
-        self.__children.append(str(child))
+        # Everything else is frozen to a string here, so a value that is merely
+        # stringable is text like any other and gets escaped on render. Only an
+        # explicit Markup (Raw, a Call) is output the caller vouched for. The
+        # freeze goes through the PHP `(string)` cast, so a bool child renders as
+        # `1` or nothing rather than its repr.
+        self.__children.append(Escaper.to_string(child))
 
     def render(self) -> str:
         tag_name = self.__tag_name
@@ -256,12 +278,6 @@ class Tag(ABC):
                     "Tag trees containing slots cannot be rendered directly; "
                     "use Compile.shape() and render with data."
                 )
-            elif (
-                not isinstance(child, (str, int, float, bool))
-                and hasattr(child, "__str__")
-                and child.__class__.__str__ is not object.__str__
-            ):
-                content += str(child)
             else:
                 content += Escaper.text(str(child))
         return content
@@ -297,12 +313,18 @@ class Tag(ABC):
     def defaultHeader(self) -> str:
         return ""
 
-    def save(self, path: str, header: Optional[str] = None):
+    def save(self, path: str, header: Optional[str] = None) -> int:
+        """Write the element to a file and return how many bytes it took.
+
+        The bytes are UTF-8 whatever the locale says, so the count is the count
+        the file holds; that is also what purephp's `save()` reports.
+        """
         rendered = self.render()
         if header is None:
             header = self.defaultHeader()
-        with open(path, "w") as f:
-            f.write(header + rendered)
+
+        with open(path, "wb") as f:
+            return f.write((header + rendered).encode("utf-8"))
 
     def print(self) -> None:
         print(self.__str__())
