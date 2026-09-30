@@ -1,6 +1,7 @@
 import sys
 from typing import Dict, List, Tuple
 
+from ...core.Escaper import Escaper
 from ..Compile import Compile
 from .ArtifactCompiler import ArtifactCompiler
 from .UnitLoader import UnitLoader
@@ -30,10 +31,16 @@ every *.cmp.py unit that registers a component into a sibling
                renders without purepy installed
   --list       print the components and shape files found, without compiling
   -h, --help   show this help
+  --           treat every later argument as a path
 
 A *.cmp.py unit registers exactly one component with
 register(); compiling it requires the file, so run the compiler
 through bin/pure, which wires the registry.
+
+Exit codes:
+  0  every unit compiled, or nothing was stale under --check
+  1  a file could not be read or compiled, or --check found stale files
+  2  the command line was wrong
 """
 
     def __init__(self, units=None):
@@ -47,44 +54,62 @@ through bin/pure, which wires the registry.
         command = arguments[0] if arguments else None
         arguments = arguments[1:]
 
+        # A bare `pure` prints the help on stdout, the way purephp does.
         if command is None:
-            stderr.write(self.USAGE)
-            return 1
+            stdout.write(self.USAGE)
+            return 0
 
-        if command in ("-h", "--help"):
+        if command in ("-h", "--help", "help"):
             stdout.write(self.USAGE)
             return 0
 
         if command != "compile":
             stderr.write(f"pure: unknown command '{command}'.\n\n{self.USAGE}")
-            return 1
+            return 2
 
         check = False
         plain = False
         list_only = False
         paths = []
+        literal = False
 
         for argument in arguments:
+            if literal:
+                paths.append(argument)
+                continue
+
+            if argument == "--":
+                literal = True
+                continue
+
             if argument == "--check":
                 check = True
-            elif argument == "--plain":
+                continue
+
+            if argument == "--plain":
                 plain = True
-            elif argument == "--list":
+                continue
+
+            if argument == "--list":
                 list_only = True
-            elif argument in ("-h", "--help"):
+                continue
+
+            if argument in ("-h", "--help"):
                 stdout.write(self.USAGE)
                 return 0
-            elif argument.startswith("-"):
-                stderr.write(f"pure: unknown option '{argument}'.\n")
-                return 1
-            else:
-                paths.append(argument)
+
+            if argument.startswith("-"):
+                stderr.write(f"pure: unknown option '{argument}'.\n\n{self.USAGE}")
+                return 2
+
+            paths.append(argument)
 
         if not paths:
             stderr.write(
-                f"pure: compile needs at least one file or directory.\n\n{self.USAGE}"
+                "pure: compile needs at least one file or directory."
+                f"\n\n{self.USAGE}"
             )
-            return 1
+            return 2
 
         failed = 0
         # purephp passes the stale count by reference; Python ints are
@@ -112,7 +137,7 @@ through bin/pure, which wires the registry.
                     continue
 
                 if units is None:
-                    self._compile(file, None, check, plain, stdout, stale)
+                    self._compile(file, None, check, plain, stdout, stderr, stale)
                     continue
 
                 if not units:
@@ -130,10 +155,10 @@ through bin/pure, which wires the registry.
 
                 if shape is None:
                     raise Exception(
-                        f"the unit factory must return a tag tree or Shape, got {type(result).__name__}."  # noqa: E501
+                        f"the unit factory must return a tag tree or Shape, got {Escaper.debug_type(result)}."  # noqa: E501
                     )
 
-                self._compile(file, shape, check, plain, stdout, stale)
+                self._compile(file, shape, check, plain, stdout, stderr, stale)
             except Exception as error:
                 failed += 1
                 stderr.write(f"pure: {file}: {error}\n")
@@ -170,7 +195,7 @@ through bin/pure, which wires the registry.
 
         return [f for f in files if f not in dropped], collisions
 
-    def _compile(self, file, shape, check, plain, stdout, stale):
+    def _compile(self, file, shape, check, plain, stdout, stderr, stale):
         if check:
             if shape is None:
                 sources = ArtifactCompiler.buildAll(file, plain)
@@ -190,12 +215,12 @@ through bin/pure, which wires the registry.
 
                 if current is None:
                     stale[0] += 1
-                    stdout.write(f"missing: {target}\n")
+                    stderr.write(f"missing: {target}\n")
                 elif current == expected:
                     stdout.write(f"up to date: {target}\n")
                 else:
                     stale[0] += 1
-                    stdout.write(f"stale: {target}\n")
+                    stderr.write(f"stale: {target}\n")
 
             return
 

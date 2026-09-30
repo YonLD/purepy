@@ -35,8 +35,14 @@ same conflict. Directories are searched recursively.
 
   --strict     exit 1 on warnings too
   -h, --help   show this help
+  --           treat every later argument as a path
 
 This is not `pure compile --check`, which reports stale artifacts.
+
+Exit codes:
+  0  no error (and no warning under --strict)
+  1  the run found errors, or a file could not be read
+  2  the command line was wrong
 """
 
     def __init__(self, units=None):
@@ -49,24 +55,36 @@ This is not `pure compile --check`, which reports stale artifacts.
         arguments = argv[1:]
         paths = []
         strict = False
+        literal = False
 
         for argument in arguments:
+            if literal:
+                paths.append(argument)
+                continue
+
+            if argument == "--":
+                literal = True
+                continue
+
             if argument == "--strict":
                 strict = True
-            elif argument in ("-h", "--help"):
+                continue
+
+            if argument in ("-h", "--help"):
                 stdout.write(self.USAGE)
                 return 0
-            elif argument.startswith("-"):
-                stderr.write(f"pure: unknown option '{argument}'\n\n{self.USAGE}")
-                return 1
-            else:
-                paths.append(argument)
+
+            if argument.startswith("-"):
+                stderr.write(f"pure: unknown option '{argument}'.\n\n{self.USAGE}")
+                return 2
+
+            paths.append(argument)
 
         if not paths:
             stderr.write(
-                f"pure: check needs at least one file or directory\n\n{self.USAGE}"
+                "pure: check needs at least one file or directory." f"\n\n{self.USAGE}"
             )
-            return 1
+            return 2
 
         files = []
         failed = 0
@@ -84,6 +102,7 @@ This is not `pure compile --check`, which reports stale artifacts.
         # counters are lists that the report helpers can mutate.
         errors = [0]
         warnings = [0]
+        notes = [0]
 
         loaded = {}
         trees = {}
@@ -112,7 +131,9 @@ This is not `pure compile --check`, which reports stale artifacts.
                     checked += 1
                     shape = ArtifactCompiler.load(file)
                     findings = self.checker.check(None, shape.tree(), None, None)
-                    self._report(stdout, file, None, findings, errors, warnings)
+                    self._report(
+                        stdout, stderr, file, None, findings, errors, warnings, notes
+                    )
                 else:
                     if not units:
                         raise Exception(
@@ -131,37 +152,83 @@ This is not `pure compile --check`, which reports stale artifacts.
                             prepare,
                         )
                         findings.extend(attribute_findings)
-                        self._report(stdout, file, name, findings, errors, warnings)
+                        self._report(
+                            stdout,
+                            stderr,
+                            file,
+                            name,
+                            findings,
+                            errors,
+                            warnings,
+                            notes,
+                        )
 
-                    self._report_call_sites(stdout, file, errors, warnings, trees)
+                    self._report_call_sites(
+                        stdout, stderr, file, errors, warnings, notes, trees
+                    )
             except Exception as error:
                 failed += 1
                 stderr.write(f"pure: {file}: {error}\n")
 
-        stdout.write(
-            f"checked {checked} unit(s): {errors[0]} error(s), {warnings[0]} warning(s).\n"  # noqa: E501
+        summary = (
+            f"checked {checked} unit(s): {errors[0]} error(s), "
+            f"{warnings[0]} warning(s)"
         )
+
+        if notes[0] > 0:
+            summary += f", {notes[0]} note(s)"
+
+        stdout.write(summary + ".\n")
 
         if failed > 0 or errors[0] > 0 or (strict and warnings[0] > 0):
             return 1
 
         return 0
 
-    def _report(self, stdout, file, name, findings, errors, warnings):
+    def _diagnostic(
+        self, stdout, stderr, file, level, message, errors, warnings, notes, line=None
+    ):
+        """Write one diagnostic as a `file:line: level: message` line.
+
+        An error and a warning go to stderr, so `2>/dev/null` leaves only the
+        results; an info note is a result and stays on stdout. The line is there
+        when the finding has one, so an editor or CI can jump to it.
+        """
+        stream = stderr if level in ("error", "warning") else stdout
+        where = file if line is None else "{}:{}".format(file, line)
+        stream.write(f"{where}: {level}: {message}\n")
+
+        if level == "error":
+            errors[0] += 1
+        elif level == "warning":
+            warnings[0] += 1
+        else:
+            notes[0] += 1
+
+    def _report(self, stdout, stderr, file, name, findings, errors, warnings, notes):
         label = f"{file} (shape)" if name is None else f"component '{name}' -> {file}"
 
         if not findings:
             stdout.write(f"ok: {label}\n")
             return
 
-        for finding in findings:
-            stdout.write(f"{finding.level}: {label}: {finding.message}\n")
-            if finding.level == "error":
-                errors[0] += 1
-            elif finding.level == "warning":
-                warnings[0] += 1
+        # The file is already the diagnostic's subject, so the message names the
+        # unit instead of repeating where it was found.
+        subject = "" if name is None else f"component '{name}': "
 
-    def _report_call_sites(self, stdout, file, errors, warnings, trees):
+        for finding in findings:
+            self._diagnostic(
+                stdout,
+                stderr,
+                file,
+                finding.level,
+                subject + finding.message,
+                errors,
+                warnings,
+                notes,
+            )
+
+    def _report_call_sites(self, stdout, stderr, file, errors, warnings, notes, trees):
         for site in CallSites.of(file, Registry.names()):
             if site["dynamic"]:
                 continue
@@ -172,30 +239,51 @@ This is not `pure compile --check`, which reports stale artifacts.
 
             deprecated = self._deprecated_props(site["name"])
 
-            for prop in site["props"]:
+            for prop, line in site["props"].items():
                 if prop in expected or prop in self.CALL_METHODS:
                     if prop in deprecated:
-                        stdout.write(
-                            f"warning: {file}: component '{site['name']}': the call binds '{prop}', which is deprecated: {deprecated[prop]}\n"  # noqa: E501
+                        self._diagnostic(
+                            stdout,
+                            stderr,
+                            file,
+                            "warning",
+                            f"component '{site['name']}': the call binds '{prop}', which is deprecated: {deprecated[prop]}",  # noqa: E501
+                            errors,
+                            warnings,
+                            notes,
+                            line,
                         )
-                        warnings[0] += 1
                     continue
 
                 if prop == "children":
-                    stdout.write(
-                        f"error: {file}: component '{site['name']}': pass children to the call itself, e.g. {site['name']}(children)\n"  # noqa: E501
+                    self._diagnostic(
+                        stdout,
+                        stderr,
+                        file,
+                        "error",
+                        f"component '{site['name']}': pass children to the call itself, e.g. {site['name']}(children)",  # noqa: E501
+                        errors,
+                        warnings,
+                        notes,
+                        line,
                     )
-                    errors += 1
                     continue
 
                 from ...core.Suggestion import Suggestion
 
                 nearest = Suggestion.nearest(prop, expected)
                 hint = f" (did you mean '{nearest}'?)" if nearest else ""
-                stdout.write(
-                    f"error: {file}: component '{site['name']}': the call binds '{prop}', which the target does not accept{hint}\n"  # noqa: E501
+                self._diagnostic(
+                    stdout,
+                    stderr,
+                    file,
+                    "error",
+                    f"component '{site['name']}': the call binds '{prop}', which the target does not accept{hint}",  # noqa: E501
+                    errors,
+                    warnings,
+                    notes,
+                    line,
                 )
-                errors[0] += 1
 
             tree = trees.get(site["name"])
             if tree is None:
@@ -205,6 +293,7 @@ This is not `pure compile --check`, which reports stale artifacts.
             for prop, items in site["items"].items():
                 self._report_items(
                     stdout,
+                    stderr,
                     file,
                     site["name"],
                     prop,
@@ -212,9 +301,24 @@ This is not `pure compile --check`, which reports stale artifacts.
                     tree,
                     slots.get(prop, prop),
                     errors,
+                    warnings,
+                    notes,
                 )
 
-    def _report_items(self, stdout, file, name, prop, items, tree, slot, errors):
+    def _report_items(
+        self,
+        stdout,
+        stderr,
+        file,
+        name,
+        prop,
+        items,
+        tree,
+        slot,
+        errors,
+        warnings,
+        notes,
+    ):
         contract = RootSlots.itemSlots(tree, slot)
         if not contract:
             return
@@ -229,18 +333,30 @@ This is not `pure compile --check`, which reports stale artifacts.
 
                 nearest = Suggestion.nearest(key, read)
                 hint = f" (did you mean '{nearest}'?)" if nearest else ""
-                stdout.write(
-                    f"error: {file}: component '{name}': item {index + 1} of '{prop}' binds '{key}', which the item shape of slot '{slot}' does not read{hint}\n"  # noqa: E501
+                self._diagnostic(
+                    stdout,
+                    stderr,
+                    file,
+                    "error",
+                    f"component '{name}': item {index + 1} of '{prop}' binds '{key}', which the item shape of slot '{slot}' does not read{hint}",  # noqa: E501
+                    errors,
+                    warnings,
+                    notes,
                 )
-                errors[0] += 1
 
             for key, info in contract.items():
                 if not info.get("required", True) or key in keys:
                     continue
-                stdout.write(
-                    f"error: {file}: component '{name}': item {index + 1} of '{prop}' does not provide '{key}', which the item shape of slot '{slot}' requires\n"  # noqa: E501
+                self._diagnostic(
+                    stdout,
+                    stderr,
+                    file,
+                    "error",
+                    f"component '{name}': item {index + 1} of '{prop}' does not provide '{key}', which the item shape of slot '{slot}' requires",  # noqa: E501
+                    errors,
+                    warnings,
+                    notes,
                 )
-                errors[0] += 1
 
     def _expected_props(self, name):
         prepare = Registry.prepare(name)

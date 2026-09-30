@@ -7,6 +7,7 @@ import tempfile
 from typing import Dict, List, Optional, TypedDict
 
 from ...core.Tag import Tag
+from ...core.Escaper import Escaper
 from ..Compile import Compile
 from ..Renderer import Renderer
 from ..Shape import Shape
@@ -301,7 +302,7 @@ class ArtifactCompiler:
         if shape is None:
             raise ValueError(
                 "'{}' must return a tag tree or pure.compile.Shape, got {}.".format(
-                    shape_file, type(result).__name__
+                    shape_file, Escaper.debug_type(result)
                 )
             )
 

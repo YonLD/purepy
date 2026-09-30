@@ -5,7 +5,6 @@ from ..core.Tag import Tag
 from ..core.DevMode import DevMode
 from .Shape import Shape
 
-
 if TYPE_CHECKING:
     from .Renderer import Renderer
 

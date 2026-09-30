@@ -47,7 +47,18 @@ def run_check(argv):
     finally:
         Registry.reset()
 
-    return {"code": code, "stdout": out.getvalue(), "stderr": err.getvalue()}
+    stdout = out.getvalue()
+    stderr = err.getvalue()
+
+    # An error and a warning go to stderr and a note stays on stdout, the way
+    # purephp splits them, so `report` is both for the assertions that only care
+    # that a message was written somewhere.
+    return {
+        "code": code,
+        "stdout": stdout,
+        "stderr": stderr,
+        "report": stdout + stderr,
+    }
 
 
 UNIT_HEADER = (
@@ -79,7 +90,7 @@ register(CleanBox, lambda: Compile.shape(
     result = run_check(["check", file])
 
     assert result["code"] == 0
-    assert "ok: component 'CleanBox' -> {}".format(file) in result["stdout"]
+    assert "ok: component 'CleanBox' -> {}".format(file) in result["report"]
     assert "checked 1 unit(s): 0 error(s), 0 warning(s)." in result["stdout"]
 
 
@@ -107,9 +118,9 @@ register(TypeBox, lambda: Compile.shape(
     # purephp names the PHP type ("string"); the Python port names the Python one.
     assert (
         "slot 'items' is a list slot but parameter $items is typed str"
-        in result["stdout"]
+        in result["report"]
     )
-    assert "slot 'title'" not in result["stdout"]
+    assert "slot 'title'" not in result["report"]
 
 
 def test_nullable_parameter_for_a_required_slot_warns(tmp_path):
@@ -137,11 +148,12 @@ register(NullBox, lambda: Compile.shape(div(Slot.value('title'))), prepare=prepa
     result = run_check(["check", file])
 
     assert result["code"] == 0
-    assert "warning: component 'NullBox': parameter $title is nullable but slot 'title' is required" in result[
-        "stdout"
-    ].replace(
-        " -> {}".format(file), ""
+    # A warning is a diagnostic, so it goes to stderr with the file as subject.
+    assert (
+        "warning: component 'NullBox': parameter $title is nullable but slot "
+        "'title' is required" in result["stderr"]
     )
+    assert "0 error(s), 1 warning(s)" in result["stdout"]
 
     strict = run_check(["check", "--strict", file])
 
@@ -169,7 +181,7 @@ register(UnusedBox, lambda: Compile.shape(div(Slot.value('title'))), prepare=pre
     assert result["code"] == 0
     assert (
         "parameter $extra is neither used by prepare() nor a slot of the template"
-        in result["stdout"]
+        in result["report"]
     )
 
 
@@ -189,7 +201,7 @@ register(PlainFunctionBox, lambda: Compile.shape(div(Slot.value('title'))))
     result = run_check(["check", file])
 
     assert result["code"] == 1
-    assert "'PlainFunctionBox()' must return pure.component.Call" in result["stdout"]
+    assert "'PlainFunctionBox()' must return pure.component.Call" in result["report"]
 
 
 def test_unit_without_prepare_or_call_function_points_at_the_call_sites(tmp_path):
@@ -211,8 +223,8 @@ Registry.register('PageBox', __file__, lambda: Compile.shape(div(Slot.value('tit
     result = run_check(["check", file])
 
     assert result["code"] == 0
-    assert "no prepare() and no function named 'PageBox'" in result["stdout"]
-    assert "0 error(s), 0 warning(s)." in result["stdout"]
+    assert "no prepare() and no function named 'PageBox'" in result["report"]
+    assert "0 error(s), 0 warning(s)" in result["stdout"]
 
 
 def test_fluent_unit_without_prepare_points_at_the_call_sites(tmp_path):
@@ -231,7 +243,7 @@ register(FluentBox, lambda: Compile.shape(div(Slot.value('title'))))
     result = run_check(["check", file])
 
     assert result["code"] == 0
-    assert "fluent unit: its props are the template slots" in result["stdout"]
+    assert "fluent unit: its props are the template slots" in result["report"]
 
 
 def test_fluent_unit_checks_prepare_against_the_slots(tmp_path):
@@ -253,7 +265,7 @@ register(FluentOk, lambda: Compile.shape(div(Slot.value('title'))), prepare=prep
     result = run_check(["check", file])
 
     assert result["code"] == 0
-    assert "0 error(s), 0 warning(s)." in result["stdout"]
+    assert "0 error(s), 0 warning(s)" in result["stdout"]
 
 
 def test_shape_file_with_conflicting_slot_kinds_is_an_error(tmp_path):
@@ -278,7 +290,7 @@ def shape():
     assert result["code"] == 1
     assert (
         "slot 'items' is used as a value or raw slot and as a child or list scope"
-        in result["stdout"]
+        in result["report"]
     )
 
 
@@ -299,7 +311,7 @@ def shape():
     result = run_check(["check", file])
 
     assert result["code"] == 0
-    assert "ok: {} (shape)".format(file) in result["stdout"]
+    assert "ok: {} (shape)".format(file) in result["report"]
 
 
 def test_directory_is_searched_recursively(tmp_path):
@@ -321,7 +333,7 @@ register(NestedBox, lambda: Compile.shape(div(Slot.value('title'))))
     result = run_check(["check", str(tmp_path)])
 
     assert result["code"] == 0
-    assert "checked 1 unit(s)" in result["stdout"]
+    assert "checked 1 unit(s)" in result["report"]
 
 
 def test_missing_path_is_reported(tmp_path):
@@ -332,18 +344,40 @@ def test_missing_path_is_reported(tmp_path):
 
 
 def test_usage_errors(tmp_path):
+    # A wrong command line is exit 2, distinct from a run that found errors.
     missing = run_check(["check"])
-    assert missing["code"] == 1
-    assert "check needs at least one file or directory" in missing["stderr"]
+    assert missing["code"] == 2
+    assert "check needs at least one file or directory." in missing["stderr"]
 
     unknown = run_check(["check", "--nope", str(tmp_path)])
-    assert unknown["code"] == 1
-    assert "unknown option '--nope'" in unknown["stderr"]
+    assert unknown["code"] == 2
+    assert "unknown option '--nope'." in unknown["stderr"]
+    assert "Exit codes:" in unknown["stderr"]
 
     help_result = run_check(["check", "--help"])
     assert help_result["code"] == 0
     assert "Usage:" in help_result["stdout"]
     assert "pure compile --check" in help_result["stdout"]
+
+
+def test_everything_after_a_double_dash_is_a_path(tmp_path, monkeypatch):
+    write_file(
+        tmp_path,
+        "--dashed.shape.py",
+        "from pure.html import div\n\n\ndef shape():\n    return div('x')\n",
+    )
+
+    monkeypatch.chdir(str(tmp_path))
+
+    # Before the separator it reads as an option, so it is a usage error.
+    assert run_check(["check", "--dashed.shape.py"])["code"] == 2
+
+    result = run_check(["check", "--", "--dashed.shape.py"])
+
+    assert result["code"] == 0
+    assert "ok: {} (shape)".format(
+        os.path.join(str(tmp_path), "--dashed.shape.py")
+    ) in result["stdout"]
 
 
 def _arrow_unit(dir, name, shape_src, prepare_src, filename=None):
@@ -376,8 +410,8 @@ def test_arrow_prepare_returns_one_array_literal(tmp_path):
     result = run_check(["check", file])
 
     assert result["code"] == 0
-    assert "does not return one array literal" not in result["stdout"]
-    assert "0 error(s), 0 warning(s)." in result["stdout"]
+    assert "does not return one array literal" not in result["report"]
+    assert "0 error(s), 0 warning(s)" in result["stdout"]
 
 
 def test_arrow_prepare_keys_are_compared_against_the_slots(tmp_path):
@@ -391,7 +425,7 @@ def test_arrow_prepare_keys_are_compared_against_the_slots(tmp_path):
     result = run_check(["check", file])
 
     assert result["code"] == 1
-    assert "required slot 'desc' is not returned by prepare()" in result["stdout"]
+    assert "required slot 'desc' is not returned by prepare()" in result["report"]
 
 
 def test_arrow_prepare_unused_parameter_warns(tmp_path):
@@ -407,7 +441,7 @@ def test_arrow_prepare_unused_parameter_warns(tmp_path):
     assert result["code"] == 0
     assert (
         "parameter $extra is neither used by prepare() nor a slot of the template"
-        in result["stdout"]
+        in result["report"]
     )
 
 
@@ -442,8 +476,8 @@ def checkPageMethodsBody():
     result = run_check(["check", str(tmp_path)])
 
     assert result["code"] == 0
-    assert "binds 'props'" not in result["stdout"]
-    assert "binds 'render'" not in result["stdout"]
+    assert "binds 'props'" not in result["report"]
+    assert "binds 'render'" not in result["report"]
 
 
 def test_closure_form_registration_derives_name_and_file(tmp_path):
@@ -462,9 +496,9 @@ register(ClosureBox, lambda: Compile.shape(div(Slot.value('title'))))
     result = run_check(["check", file])
 
     assert result["code"] == 0
-    assert "component 'ClosureBox'" in result["stdout"]
-    assert "no component unit is registered" not in result["stdout"] + result["stderr"]
-    assert "no function named 'ClosureBox'" not in result["stdout"]
+    assert "component 'ClosureBox'" in result["report"]
+    assert "no component unit is registered" not in result["report"] + result["stderr"]
+    assert "no function named 'ClosureBox'" not in result["report"]
 
 
 def test_closure_form_rejects_an_anonymous_closure(tmp_path):
@@ -511,8 +545,8 @@ def tplBoxBroken() -> str:
     result = run_check(["check", file])
 
     assert result["code"] == 1
-    assert "tplBoxBroken" in result["stdout"]
-    assert "must declare a return type" in result["stdout"]
+    assert "tplBoxBroken" in result["report"]
+    assert "must declare a return type" in result["report"]
 
 
 def test_template_marked_function_is_not_taken_for_the_call_function(tmp_path):
@@ -540,7 +574,7 @@ def TplSkipShape():
     result = run_check(["check", file])
 
     assert result["code"] == 0
-    assert "no function named 'TplSkipShape'" not in result["stdout"]
+    assert "no function named 'TplSkipShape'" not in result["report"]
 
 
 PROP_HEADER = UNIT_HEADER + "from pure.component.Prop import Prop\n"
@@ -565,7 +599,7 @@ register(CheckDup, lambda: Compile.shape(div(Slot.value('title'))), prepare=prep
     result = run_check(["check", file])
 
     assert result["code"] == 1
-    assert "props $text and $heading declare the same slot 'title'" in result["stdout"]
+    assert "props $text and $heading declare the same slot 'title'" in result["report"]
 
 
 def test_declared_slot_must_be_returned_by_a_prepare_literal(tmp_path):
@@ -589,7 +623,7 @@ register(CheckLiteral, lambda: Compile.shape(div(h2(Slot.value('title')))), prep
     assert result["code"] == 1
     assert (
         "prop $text declares slot 'title', which prepare() does not return"
-        in result["stdout"]
+        in result["report"]
     )
 
 
@@ -614,7 +648,7 @@ register(CheckTypo, lambda: Compile.shape(div(h2(Slot.value('title')))), prepare
     assert result["code"] == 1
     assert (
         "prop $text declares slot 'titel', which the template does not read (did you mean 'title'?)"
-        in result["stdout"]
+        in result["report"]
     )
 
 
@@ -642,7 +676,7 @@ register(CheckUndeclared, lambda: Compile.shape(
     assert result["code"] == 1
     assert (
         "required slot 'contents' is not covered by any declaration and prepare() does not return a readable array literal"
-        in result["stdout"]
+        in result["report"]
     )
 
 
@@ -661,7 +695,7 @@ def test_fluent_unit_with_a_computed_prepare_result_is_not_compared(tmp_path):
     result = run_check(["check", file])
 
     assert result["code"] == 0
-    assert "prepare() does not return one array literal" in result["stdout"]
+    assert "prepare() does not return one array literal" in result["report"]
 
 
 def test_prepare_keys_are_read_from_an_interpolated_literal(tmp_path):
@@ -688,8 +722,8 @@ register(CheckInterpolated, lambda: Compile.shape(
     result = run_check(["check", file])
 
     assert result["code"] == 0
-    assert "prepare() does not return one array literal" not in result["stdout"]
-    assert "0 error(s), 0 warning(s)." in result["stdout"]
+    assert "prepare() does not return one array literal" not in result["report"]
+    assert "0 error(s), 0 warning(s)" in result["stdout"]
 
 
 def test_binds_must_match_a_readable_literal(tmp_path):
@@ -717,8 +751,40 @@ register(CheckBindsLiteral, lambda: Compile.shape(
 
     assert result["code"] == 1
     assert (
-        "#[Binds] declares 'titel', which prepare() does not return" in result["stdout"]
+        "#[Binds] declares 'titel', which prepare() does not return" in result["report"]
     )
+
+
+def test_inline_prepare_lambda_bindings_are_compared(tmp_path):
+    # A lambda written inline in the register() call comes back from
+    # inspect.getsource() as a fragment, so the checker has to recover the
+    # bindings from it — otherwise a mismatch is silently reported as an info
+    # note instead of the error PHP reports.
+    write_file(
+        tmp_path,
+        "inline-prepare.cmp.py",
+        """
+from pure.component import component, register
+from pure.compile import Compile
+from pure.core.Slot import Slot
+from pure.html import div
+
+def CheckInlinePrepare(*children):
+    return component('CheckInlinePrepare', *children)
+
+register(CheckInlinePrepare,
+    factory=lambda: Compile.shape(div(Slot.value('title'), div(Slot.raw('desc')))),
+    prepare=lambda title: {'titel': title})
+""",
+    )
+
+    result = run_check(["check", str(tmp_path / "inline-prepare.cmp.py")])
+
+    assert result["code"] == 1
+    # 'desc' is required by the shape and the prepare() literal binds neither
+    # it nor anything covering it, so the gap is an error, not a note.
+    assert "required slot 'desc' is not returned by prepare()" in result["report"]
+    assert "prepare() does not return one array literal" not in result["report"]
 
 
 def test_deprecated_prop_is_reported_at_call_sites(tmp_path):
@@ -759,9 +825,9 @@ def checkDeprecatedBody():
     assert result["code"] == 0
     assert (
         "component 'CheckDeprecated': the call binds 'style', which is deprecated: use class()"
-        in result["stdout"]
+        in result["stderr"]
     )
-    assert "0 error(s), 1 warning(s)." in result["stdout"]
+    assert "0 error(s), 1 warning(s)" in result["stdout"]
 
 
 def test_fluent_unit_prepare_mismatch_is_reported(tmp_path):
@@ -778,9 +844,9 @@ def test_fluent_unit_prepare_mismatch_is_reported(tmp_path):
     assert result["code"] == 1
     assert (
         "prepare() returns 'titel' but the template does not read it (did you mean 'title'?)"
-        in result["stdout"]
+        in result["report"]
     )
-    assert "required slot 'title' is not returned by prepare()" in result["stdout"]
+    assert "required slot 'title' is not returned by prepare()" in result["report"]
 
 
 def test_call_function_can_resolve_the_unit_by_file_path(tmp_path):
@@ -803,7 +869,7 @@ register(NamespacedBox, lambda: Compile.shape(div(Slot.value('title'))))
         "fluent unit: its props are the template slots, so the call sites are checked instead"
         in result["stdout"]
     )
-    assert "0 error(s), 0 warning(s)." in result["stdout"]
+    assert "0 error(s), 0 warning(s)" in result["stdout"]
 
 
 def test_declared_required_must_match_the_signature(tmp_path):
@@ -835,11 +901,11 @@ register(CheckDeclaredRequired, lambda: Compile.shape(
     assert result["code"] == 1
     assert (
         "prop $text is declared optional but its parameter has no default value; callers must pass it"
-        in result["stdout"]
+        in result["report"]
     )
     assert (
         "prop $klass is declared required but its parameter has a default value; callers may omit it"
-        in result["stdout"]
+        in result["report"]
     )
 
 
@@ -865,8 +931,8 @@ register(CheckDeclared, lambda: Compile.shape(
     result = run_check(["check", file])
 
     assert result["code"] == 0
-    assert "its bindings are read from the #[Prop] declarations" in result["stdout"]
-    assert "0 error(s), 0 warning(s)." in result["stdout"]
+    assert "its bindings are read from the #[Prop] declarations" in result["report"]
+    assert "0 error(s), 0 warning(s)" in result["stdout"]
 
 
 def test_declared_item_is_checked_against_the_item_shape(tmp_path):
@@ -890,7 +956,7 @@ register(CheckDeclaredItem, lambda: Compile.shape(
     result = run_check(["check", file])
 
     assert result["code"] == 0
-    assert "0 error(s), 0 warning(s)." in result["stdout"]
+    assert "0 error(s), 0 warning(s)" in result["stdout"]
 
 
 def test_trusted_prop_must_bind_a_raw_slot(tmp_path):
@@ -963,18 +1029,18 @@ register(CheckTrustedUnread, lambda: Compile.shape(div()), prepare=prepare)
     result = run_check(["check", str(tmp_path)])
 
     assert result["code"] == 1
-    assert "ok: component 'CheckTrustedRaw'" in result["stdout"]
+    assert "ok: component 'CheckTrustedRaw'" in result["report"]
     assert (
         "prop $title is declared as markup (#[Trusted]) but slot 'title' is a text slot"
-        in result["stdout"]
+        in result["report"]
     )
     assert (
         "prop $body is declared as markup (#[Trusted]) but slot 'body' is also read as a text slot"
-        in result["stdout"]
+        in result["report"]
     )
     assert (
         "prop $extra is declared as markup (#[Trusted]) but slot 'extra' is not read by the template"
-        in result["stdout"]
+        in result["report"]
     )
 
 
@@ -1022,10 +1088,10 @@ register(CheckBindsUncovered, lambda: Compile.shape(
     result = run_check(["check", str(tmp_path)])
 
     assert result["code"] == 1
-    assert "its bindings are read from the #[Binds] declarations" in result["stdout"]
+    assert "its bindings are read from the #[Binds] declarations" in result["report"]
     assert (
         "required slot 'desc' is not covered by any declaration and prepare() does not return a readable array literal"
-        in result["stdout"]
+        in result["report"]
     )
 
 
@@ -1065,10 +1131,10 @@ def checkPageCallsChildren():
     assert result["code"] == 1
     assert (
         "component 'CheckTarget': the call binds 'titel', which the target does not accept (did you mean 'title'?)"
-        in result["stdout"]
+        in result["report"]
     )
     assert (
-        "component 'CheckTarget': pass children to the call itself" in result["stdout"]
+        "component 'CheckTarget': pass children to the call itself" in result["report"]
     )
 
 
@@ -1121,19 +1187,19 @@ register({name}, lambda: Compile.shape({shape}), prepare=prepare)
     assert result["code"] == 1
     assert (
         "prop $features declares one item slot 'vaule' but the item shape of slot 'features' reads 'value' (did you mean 'value'?)"
-        in result["stdout"]
+        in result["report"]
     )
     assert (
         "prop $features declares one item slot 'value' but the item shape of slot 'features' reads 'value', 'url'"
-        in result["stdout"]
+        in result["report"]
     )
     assert (
         "prop $title declares item: 'value' but slot 'title' is not a list slot"
-        in result["stdout"]
+        in result["report"]
     )
     assert (
         "prop $features declares item: 'value' but the item shape of slot 'features' reads no slots"
-        in result["stdout"]
+        in result["report"]
     )
 
 
@@ -1202,16 +1268,57 @@ def checkItemsBody():
     assert result["code"] == 1
     assert (
         "item 2 of 'links' binds 'txet', which the item shape of slot 'links' does not read (did you mean 'text'?)"
-        in result["stdout"]
+        in result["report"]
     )
     assert (
         "item 2 of 'links' does not provide 'text', which the item shape of slot 'links' requires"
-        in result["stdout"]
+        in result["report"]
     )
     assert (
         "item 1 of 'links' does not provide 'href', which the item shape of slot 'links' requires"
-        in result["stdout"]
+        in result["report"]
     )
-    assert "of 'rows'" not in result["stdout"]
-    assert "binds 'a'" not in result["stdout"]
+    assert "of 'rows'" not in result["report"]
+    assert "binds 'a'" not in result["report"]
     assert "3 error(s)" in result["stdout"]
+
+
+def test_call_site_findings_carry_the_line_of_the_setter_on_stderr(tmp_path):
+    write_file(
+        tmp_path,
+        "target.cmp.py",
+        UNIT_HEADER
+        + """
+def CheckTarget(*children):
+    return component('CheckTarget', *children)
+
+register(CheckTarget, lambda: Compile.shape(div(Slot.value('title'))))
+""",
+    )
+
+    file = write_file(
+        tmp_path,
+        "page.cmp.py",
+        UNIT_HEADER
+        + """
+def CheckPage(*children):
+    return component('CheckPage', *children)
+
+register(CheckPage, lambda: Compile.shape(div()))
+
+def body():
+    return str(
+        CheckTarget().titel('a')
+    )
+""",
+    )
+
+    result = run_check(["check", str(tmp_path)])
+
+    # An error goes to stderr so `2>/dev/null` leaves only the results, and it
+    # names the line the setter is on so an editor can jump to it.
+    assert result["code"] == 1
+    assert "error:" not in result["stdout"]
+    assert ": error: component 'CheckTarget': the call binds 'titel'" in result["stderr"]
+    # The finding names the line the setter is on, not just the file.
+    assert "page.cmp.py:13: error:" in result["stderr"]

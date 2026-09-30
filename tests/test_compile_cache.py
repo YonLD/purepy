@@ -264,6 +264,38 @@ def test_cache_path_rejects_unwritable_directory(tmp_path):
         locked.rmdir()
 
 
+def test_cache_path_rejects_a_directory_owned_by_another_user(tmp_path, monkeypatch):
+    _skip_as_root()
+
+    owned = tmp_path / "owned"
+    owned.mkdir(mode=0o700)
+
+    # Ownership cannot be changed without privilege, so the uid the check reads
+    # is moved instead: the mode stays private, which is exactly the case a mode
+    # check alone would wave through.
+    real_stat = os.stat
+
+    def fake_stat(path, *args, **kwargs):
+        info = real_stat(path, *args, **kwargs)
+
+        if str(path) == str(owned):
+            # st_uid is the fifth field of an os.stat_result tuple.
+            fields = tuple(info)
+            return os.stat_result(
+                fields[:4] + (os.getuid() + 1,) + fields[5:]
+            )
+
+        return info
+
+    monkeypatch.setattr(os, "stat", fake_stat)
+
+    try:
+        with pytest.raises(ValueError, match="is not owned by the current user"):
+            Compile.cachePath(str(owned))
+    finally:
+        owned.rmdir()
+
+
 def test_clear_cache_removes_only_own_files(tmp_path):
     Compile.cachePath(str(tmp_path))
     try:
@@ -346,3 +378,40 @@ def test_write_cleans_up_its_temp_file_when_the_rename_fails(tmp_path, monkeypat
     finally:
         Compile.cachePath(None)
         Compile.flush()
+
+
+def test_a_cached_renderer_loads_and_renders_without_recompiling(tmp_path):
+    Compile.cachePath(str(tmp_path))
+    Compile.flush()
+
+    shape = Compile.shape(div(span(Slot.value("v"))).class_name("c"))
+    first = shape({"v": "a & b"})
+
+    cached = [name for name in os.listdir(str(tmp_path)) if name.endswith(".py")]
+
+    assert len(cached) == 1
+
+    # A flushed generation drops the in-process memo, so the next compile has to
+    # come back from the file on disk.
+    Compile.flush()
+
+    reloaded = Compile.shape(div(span(Slot.value("v"))).class_name("c"))
+
+    assert reloaded({"v": "a & b"}) == first
+    assert reloaded.compile().source == shape.compile().source
+
+
+def test_flush_recompiles_a_shape_it_already_compiled(tmp_path):
+    Compile.cachePath(None)
+    Compile.flush()
+
+    tree = div(Slot.value("v"))
+    shape = Compile.shape(tree)
+
+    first = shape.compile()
+
+    # A flush is documented to invalidate in-memory renderers, so a shape that
+    # is compiled again has to be a new one.
+    Compile.flush()
+
+    assert shape.compile() is not first

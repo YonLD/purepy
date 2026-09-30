@@ -14,46 +14,29 @@ from pure.component.Registry import Registry
 def main():
     argv = sys.argv[1:]
 
-    if not argv:
-        print("Usage: pure <command> [options] [paths...]")
-        print("")
-        print("Commands:")
-        print("  check <path>...     Check component contracts")
-        print("  compile <path>...   Compile shape and unit files into artifacts")
-        print("  -v, --version       Print version")
-        print("  -h, --help          Show this help")
-        return 1
-
-    command = argv[0]
-
-    if command in ('-v', '--version', 'version'):
+    if argv and argv[0] in ('-v', '--version', 'version'):
         from pure import __version__
         print(f"pure {__version__}")
         return 0
 
-    if command in ('-h', '--help'):
-        print("Usage: pure <command> [options] [paths...]")
-        print("")
-        print("Commands:")
-        print("  check <path>...     Check component contracts")
-        print("  compile <path>...   Compile shape and unit files into artifacts")
-        print("  -v, --version       Print version")
-        print("  -h, --help          Show this help")
-        return 0
+    if argv and argv[0] == 'check':
+        return CheckCommand(lambda f: Registry.unitsFor(f)).run(argv)
 
-    if command == 'check':
-        cmd = CheckCommand(lambda f: Registry.unitsFor(f))
-        return cmd.run(argv)
-
-    if command == 'compile':
-        cmd = ArtifactCommand(lambda f: Registry.unitsFor(f))
-        return cmd.run(argv)
-
-    print(f"pure: unknown command '{command}'")
-    print("")
-    print("Usage: pure <command> [options] [paths...]")
-    return 1
+    # Everything else -- compile, help, a bare `pure`, an unknown command -- is
+    # answered by the artifact command, which owns the usage text and the exit
+    # codes.
+    return ArtifactCommand(lambda f: Registry.unitsFor(f)).run(argv)
 
 
 if __name__ == '__main__':
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        sys.exit(130)
+    except SystemExit:
+        raise
+    except BaseException as error:
+        # A unit that explodes while loading is a one-line report, not a
+        # traceback: the stack names library internals the caller cannot act on.
+        print(f"pure: {error}", file=sys.stderr)
+        sys.exit(1)

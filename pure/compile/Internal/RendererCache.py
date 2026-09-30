@@ -23,13 +23,28 @@ class RendererCache:
                     )
 
         try:
-            perms = os.stat(dir).st_mode & 0o777
+            info = os.stat(dir)
+            perms = info.st_mode & 0o777
+            owner = info.st_uid
         except OSError:
+            # An unreadable directory cannot be vetted either; the writability
+            # check below is what reports it.
             perms = 0
+            owner = os.getuid()
 
         if perms & 0o022:
             raise ValueError(
                 "compile cache directory '{}' must not be writable by group or others; use a private directory such as 0700.".format(  # noqa: E501
+                    dir
+                )
+            )
+
+        if owner != os.getuid():
+            # A private mode is no protection on a directory another user owns:
+            # they can replace what is inside it between two compiles. This is
+            # the owner check purephp runs after the mode check.
+            raise ValueError(
+                "compile cache directory '{}' is not owned by the current user.".format(  # noqa: E501
                     dir
                 )
             )
@@ -113,21 +128,24 @@ class RendererCache:
                 pass
             return None
 
-        body = contents[match.end() :].strip()
-        if body.startswith("def "):
-            body = body[4:]
-
-        return Renderer(closure, id, slots)
+        # The cached file stores the whole module behind a header line, so the
+        # header is dropped before the source is handed back with the callable:
+        # a renderer loaded from disk stays byte-identical to a freshly compiled
+        # one, the way purephp's `new Renderer($closure, $body, ...)` does.
+        return Renderer(contents[match.end() :], id, slots, render_fn=closure)
 
     @staticmethod
     def write(file: str, source: str, id: str) -> None:
         py_version = "{}.{}".format(sys.version_info[0], sys.version_info[1])
+        # `source` is a whole generated module and already opens with
+        # `def render(data):`, so the header is the only thing prepended here;
+        # adding a second function head would nest the body at column zero and
+        # make the file unimportable.
+        body = source if source.endswith("\n") else source + "\n"
         contents = (
             RendererCache.HEADER_PREFIX
             + "id={} v={} py={}\n".format(id, Compile.CACHE_VERSION, py_version)
-            + "def render(data):\n"
-            + source
-            + "\n"
+            + body
         )
 
         dir_name = os.path.dirname(file)

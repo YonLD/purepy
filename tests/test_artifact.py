@@ -348,6 +348,19 @@ def test_plain_views_keep_the_document_header_of_document_roots_only():
         assert namespace["view"]() == header + tree.render()
 
 
+def test_compile_requires_at_least_one_path():
+    missing = _run(["compile"])
+
+    # A wrong command line is exit 2, distinct from a run that failed.
+    assert missing["code"] == 2
+    assert "needs at least one file or directory." in missing["stderr"]
+
+    checked = _run(["compile", "--plain", "--check"])
+
+    assert checked["code"] == 2
+    assert "Usage:" in checked["stderr"]
+
+
 def test_plain_paths_follow_the_shape_suffix(tmp_path):
     shape = str(tmp_path / "page.shape.py")
 
@@ -358,6 +371,40 @@ def test_plain_paths_follow_the_shape_suffix(tmp_path):
         ArtifactCompiler.plainPath(str(tmp_path / "page.py"))
 
     assert "is not a *.shape.py or *.cmp.py file" in str(error.value)
+
+
+def test_check_mode_reports_missing_and_stale_artifacts(tmp_path):
+    file = _shape_file(
+        tmp_path,
+        "check.shape.py",
+        "from pure.compile.Compile import Compile\n"
+        "from pure.core.Slot import Slot\n"
+        "from pure.html import div\n\n\n"
+        'shape = Compile.shape(div(Slot.value("v")))\n',
+    )
+
+    missing = _run(["compile", "--check", file])
+
+    assert missing["code"] == 1
+    assert "missing:" in missing["stderr"]
+
+    compiled = _run(["compile", "--plain", file])
+
+    assert compiled["code"] == 0
+    assert "compiled:" in compiled["stdout"]
+
+    fresh = _run(["compile", "--check", file])
+
+    assert fresh["code"] == 0
+    assert "up to date:" in fresh["stdout"]
+
+    (tmp_path / "check.pure.py").write_text("# stale\n")
+
+    stale = _run(["compile", "--check", file])
+
+    assert stale["code"] == 1
+    assert "stale:" in stale["stderr"]
+    assert "need recompiling" in stale["stderr"]
 
 
 def test_write_changed_skips_files_that_are_already_current(tmp_path):
@@ -515,6 +562,35 @@ def test_unit_artifacts_match_shape_file_artifacts(tmp_path):
     assert from_shape_file.render({"title": "a"}) == from_unit.render({"title": "a"})
 
 
+def test_compiles_unit_files_through_the_command(tmp_path):
+    file = _unit_file(tmp_path, "badge.cmp.py", "auto")
+
+    compiled = _run(["compile", "--plain", file], _registry_units)
+
+    assert compiled["code"] == 0
+    assert "compiled:" in compiled["stdout"]
+    assert (tmp_path / "badge.pure.py").exists()
+    assert (tmp_path / "badge.plain.py").exists()
+
+    fresh = _run(["compile", "--check", "--plain", file], _registry_units)
+
+    assert fresh["code"] == 0
+    assert "up to date:" in fresh["stdout"]
+
+    listing = _run(["compile", "--list", file], _registry_units)
+
+    assert listing["code"] == 0
+    assert "(component)" in listing["stdout"]
+    assert file in listing["stdout"]
+
+    (tmp_path / "badge.pure.py").write_text("# stale\n")
+
+    stale = _run(["compile", "--check", file], _registry_units)
+
+    assert stale["code"] == 1
+    assert "stale:" in stale["stderr"]
+
+
 def test_unit_files_need_the_registry(tmp_path):
     file = _unit_file(tmp_path, "badge.cmp.py", "auto")
 
@@ -635,6 +711,34 @@ def test_compiles_directories_recursively(tmp_path):
     assert "b.shape.py" in result["stdout"]
 
 
+def test_rejects_files_that_are_not_shapes(tmp_path):
+    broken = _run(
+        [
+            "compile",
+            _shape_file(tmp_path, "broken.shape.py", "shape = 42\n"),
+        ]
+    )
+
+    assert broken["code"] == 1
+    assert "must return a tag tree or pure.compile.Shape" in broken["stderr"]
+
+    suffix = _run(["compile", _shape_file(tmp_path, "page.py", "shape = None\n")])
+
+    assert suffix["code"] == 1
+    assert "is not a *.shape.py or *.cmp.py file" in suffix["stderr"]
+
+    missing = _run(["compile", str(tmp_path / "absent.shape.py")])
+
+    assert missing["code"] == 1
+    assert "does not exist" in missing["stderr"]
+
+    usage = _run(["compile", "--nope"])
+
+    assert usage["code"] == 2
+    assert "unknown option '--nope'." in usage["stderr"]
+    assert "Exit codes:" in usage["stderr"]
+
+
 def test_renderer_save_writes_a_fragment_and_shape_save_prepends_the_roots_header(
     tmp_path,
 ):
@@ -699,6 +803,50 @@ def test_cli_binary_compiles_and_checks(tmp_path):
 
     assert check_run.returncode == 0
     assert "up to date:" in check_run.stdout
+
+
+def test_compile_plain_writes_and_checks_both_flavours(tmp_path):
+    file = _shape_file(
+        tmp_path,
+        "flavours.shape.py",
+        "from pure.compile.Compile import Compile\n"
+        "from pure.core.Slot import Slot\n"
+        "from pure.html import div\n\n\n"
+        'shape = Compile.shape(div(Slot.value("v")))\n',
+    )
+
+    compiled = _run(["compile", "--plain", file])
+
+    assert compiled["code"] == 0
+    assert (tmp_path / "flavours.pure.py").exists()
+    assert (tmp_path / "flavours.plain.py").exists()
+    assert (
+        "flavours.pure.py, {}".format(tmp_path / "flavours.plain.py")
+        in compiled["stdout"]
+    )
+
+    fresh = _run(["compile", "--check", "--plain", file])
+
+    assert fresh["code"] == 0
+    assert fresh["stdout"].count("up to date:") == 2
+
+    reordered = _run(["compile", "--plain", "--check", file])
+
+    assert reordered["code"] == 0
+
+    (tmp_path / "flavours.plain.py").unlink()
+
+    missing = _run(["compile", "--check", "--plain", file])
+
+    assert missing["code"] == 1
+    assert "missing: {}".format(tmp_path / "flavours.plain.py") in missing["stderr"]
+
+    (tmp_path / "flavours.plain.py").write_text("# tampered\n")
+
+    stale = _run(["compile", "--check", "--plain", file])
+
+    assert stale["code"] == 1
+    assert "stale: {}".format(tmp_path / "flavours.plain.py") in stale["stderr"]
 
 
 def test_artifact_renderers_report_data_keys_the_template_does_not_read(tmp_path):

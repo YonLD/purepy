@@ -47,7 +47,7 @@ class CallSites:
     @staticmethod
     def __scan_chain(root: ast.Call, known: set) -> Optional[Dict]:
         name: Optional[str] = None
-        props: Dict[str, bool] = {}
+        props: Dict[str, int] = {}
         items: Dict[str, List[Dict[str, bool]]] = {}
         dynamic = False
 
@@ -61,7 +61,9 @@ class CallSites:
                 if CallSites.__has_spread(node):
                     dynamic = True
                 else:
-                    props[prop] = True
+                    # The line the setter is on, so a diagnostic names where the
+                    # call binds the prop rather than only which file it is in.
+                    props[prop] = node.lineno
                     literal = CallSites.__items(node)
                     if literal is not None:
                         items[prop] = literal
