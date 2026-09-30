@@ -16,6 +16,8 @@ def plain(name, data=None):
     with open(file, 'r') as f:
         code = f.read()
 
+    # A plain view is a module whose `view()` takes the root slots as keyword
+    # parameters, so the data is passed by name.
     exec(compile(code, file, 'exec'), namespace)
 
-    return namespace['render']()
+    return namespace['view'](**data)

@@ -2,6 +2,12 @@ import os
 
 
 def plain(name, data=None):
+    """Render a compiled plain view and return its document.
+
+    A plain view is a module whose `view()` takes the root slots as keyword
+    parameters, so the data is passed by name rather than extracted into the
+    module globals.
+    """
     if data is None:
         data = {}
 
@@ -13,6 +19,7 @@ def plain(name, data=None):
     with open(file) as f:
         code = f.read()
 
-    local_vars = dict(data)
-    exec(code, local_vars)
-    return local_vars['render']()
+    namespace = {}
+    exec(compile(code, file, 'exec'), namespace)
+
+    return namespace['view'](**data)

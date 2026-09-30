@@ -1,6 +1,4 @@
 import os
-import io
-import contextlib
 
 from pure.core.Markup import Markup
 
@@ -27,8 +25,9 @@ def plain(name, data=None):
     with open(file, 'r', encoding='utf-8') as f:
         code = f.read()
 
-    output = io.StringIO()
-    with contextlib.redirect_stdout(output):
-        exec(compile(code, file, 'exec'), namespace)
+    # A plain view is a module whose `view()` takes the root slots as keyword
+    # parameters, so the bindings are passed by name rather than extracted into
+    # the module globals.
+    exec(compile(code, file, 'exec'), namespace)
 
-    return output.getvalue()
+    return namespace['view'](**bindings)
